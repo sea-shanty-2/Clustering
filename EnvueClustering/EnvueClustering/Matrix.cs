@@ -139,11 +139,11 @@ namespace EnvueClustering
         {
             if (m1.Shape[1] != m2.Shape[0])
                 throw new ArgumentException(
-                    $"Cannot multiply matrices with shapes {m1.Shape} and {m2.Shape}."
-                            + "Matrices must share their facing dimension, i.e. only shapes" 
-                            + "respecting(X, Y) * (Y, Z) can be multiplied.");
+                    $"Cannot multiply matrices with shapes {m1.Shape} and {m2.Shape}." +
+                              "Matrices must share their facing dimension, i.e. only shapes" +
+                              "respecting(X, Y) * (Y, Z) can be multiplied.");
 
-            var matrix = new float[m1.Shape[0], m2.Shape[1]];
+            var matrix = new Matrix(m1.Shape[0], m2.Shape[1]);
             for (var i = 0; i < m1.Shape[0]; i++)
             {
                 for (var j = 0; j < m2.Shape[1]; j++)
@@ -154,9 +154,34 @@ namespace EnvueClustering
                     }
                 }
             }
-            return new Matrix(matrix);
+            return matrix;
         }
-        
+
+        /// <summary>
+        /// Returns the Hadamard product between this and the provided matrix.
+        /// Note that this is not a matrix multiplication, but an entry-wise product operation.
+        /// </summary>
+        public Matrix Hadamard(Matrix m)
+        {
+            if (!Shape.SequenceEqual(m.Shape))
+            {
+                throw new ArgumentException(
+                    $"Cannot calculate the Hadamard product of matrices of different shapes. " +
+                             $"Shapes were {Shape.Pretty()} and {m.Shape.Pretty()}");
+            }
+            
+            var matrix = new Matrix(_rows, _columns);
+            for (var i = 0; i < _rows; i++)
+            {
+                for (var j = 0; j < _columns; j++)
+                {
+                    matrix[i, j] = m[i, j] * _m[i, j];
+                }
+            }
+
+            return matrix;
+        }
+
         /// <summary>
         /// Scales a matrix by a scalar value. 
         /// </summary>

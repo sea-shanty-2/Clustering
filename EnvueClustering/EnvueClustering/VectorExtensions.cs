@@ -102,6 +102,6 @@ namespace EnvueClustering
             var enumerable = source as T[] ?? source.ToArray();  // So we don't enumerate several times.
             var length = enumerable.Length;
             return enumerable.Zip(length.Range(), (val, i) => (i, val));
-        }
+        }        
     }
 }

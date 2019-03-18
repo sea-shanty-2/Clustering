@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace EnvueClustering
 {
@@ -13,8 +15,8 @@ namespace EnvueClustering
     /// arithmetic operators in order to add, subtract and multiply matrices with other
     /// matrices or scalars. 
     /// </summary>
-    public class Matrix
-                            
+    public class Matrix : IEnumerable<float[]>
+
     {
         private float[,] _m;                   // Internal matrix representation.
         private readonly int _rows, _columns;  // Dimensions of the matrix.
@@ -298,12 +300,29 @@ namespace EnvueClustering
             return new Matrix(matrix.ToArray());
         }
 
+        /// <inheritdoc />
+        /// <summary>
+        /// Returns an iterator over the rows of the matrix.
+        /// </summary>
+        public IEnumerator<float[]> GetEnumerator()
+        {
+            for (var i = 0; i < _rows; i++)
+            {
+                yield return this[i];
+            }
+        }
+
         public override string ToString()
         {
             var stringBuilder = new StringBuilder();
             for (var i = 0; i < _rows; i++)
                 stringBuilder.AppendLine(this[i].Pretty());
             return stringBuilder.ToString();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

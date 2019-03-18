@@ -16,9 +16,8 @@ namespace EnvueClustering
     public class Matrix
                             
     {
-        private float[,] _m;
-
-        private readonly int _rows, _columns;
+        private float[,] _m;                   // Internal matrix representation.
+        private readonly int _rows, _columns;  // Dimensions of the matrix.
 
         /// <summary>
         /// Returns a zero-valued matrix of shape (rows, columns). 
@@ -93,7 +92,7 @@ namespace EnvueClustering
         }
 
         /// <summary>
-        /// Returns the i'th row of the matrix.
+        /// Accesses the i'th row of the matrix.
         /// </summary>
         public float[] this[int i]
         {
@@ -110,7 +109,7 @@ namespace EnvueClustering
         }
         
         /// <summary>
-        /// Returns the value of the cell at position M[i, j].
+        /// Accesses the value of the cell at position M[i, j].
         /// </summary>
         public float this[int i, int j]
         {
@@ -236,10 +235,10 @@ namespace EnvueClustering
         {
             get
             {
-                for (int j = 0; j < _columns; j++)
+                for (var j = 0; j < _columns; j++)
                 {
-                    float[] column = new float[_rows];
-                    for (int i = 0; i < _rows; i++)
+                    var column = new float[_rows];
+                    for (var i = 0; i < _rows; i++)
                     {
                         column[i] = _m[i, j];
                     }
@@ -249,10 +248,60 @@ namespace EnvueClustering
             }
         }
 
+        /// <summary>
+        /// Returns a new matrix that does not contain the provided row index.
+        /// </summary>
+        /// <param name="i">The index of the row to remove.</param>
+        public Matrix DeleteRow(int i)
+        {
+            if (i >= _rows)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(i), 
+                    $"Cannot delete row {i} when the matrix only contains {_rows} rows.");
+            }
+
+            var matrix = new List<float[]>();
+            for (var k = 0; k < _rows; k++)
+            {
+                if (k == i)
+                    continue;
+                
+                matrix.Add(this[k]);
+            }
+            
+            return new Matrix(matrix.ToArray());
+        }
+
+        /// <summary>
+        /// Returns a new matrix that does not contain the provided column.
+        /// </summary>
+        /// <param name="i">Index of the column to remove.</param>
+        public Matrix DeleteColumn(int i)
+        {
+            if (i >= _columns)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(i), $"Cannot delete column {i} when the matrix only "
+                                                  + "contains {_columns} columns");
+            }
+
+            var matrix = new List<float[]>();
+            foreach (var (k, column) in Columns.Enumerate())
+            {
+                if (k == i)
+                    continue;
+                
+                matrix.Add(column);
+            }
+            
+            return new Matrix(matrix.ToArray());
+        }
+
         public override string ToString()
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < _rows; i++)
+            var stringBuilder = new StringBuilder();
+            for (var i = 0; i < _rows; i++)
                 stringBuilder.AppendLine(this[i].Pretty());
             return stringBuilder.ToString();
         }

@@ -90,5 +90,18 @@ namespace EnvueClustering
         {
             return Enumerable.Range(start, max - 1);
         }
+
+        /// <summary>
+        /// Converts a collection [v0, v1, ... vn] into a list of pairs
+        /// [(0, v0), (1, v1), ... (n, vn)].
+        /// </summary>
+        /// <param name="source">The collection to enumerate.</param>
+        /// <returns></returns>
+        public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T> source)
+        {
+            var enumerable = source as T[] ?? source.ToArray();  // So we don't enumerate several times.
+            var length = enumerable.Length;
+            return enumerable.Zip(length.Range(), (val, i) => (i, val));
+        }
     }
 }

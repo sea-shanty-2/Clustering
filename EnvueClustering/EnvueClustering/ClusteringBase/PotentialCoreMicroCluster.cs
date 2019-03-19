@@ -45,5 +45,18 @@ namespace EnvueClustering.ClusteringBase
                 return p.Pow(2).Scale(_fading(time - t));
             }).ElementWiseSum();
         }
+
+        protected override T Center(float time)
+        {
+            return CF1(time).Divide(Weight(time));
+        }
+
+        protected override float Radius(float time)
+        {
+            var w = Weight(time);
+            var c1 = CF2(time).Size() / w;
+            var c2 = Math.Pow(CF1(time).Size() / w, 2);
+            return (float)Math.Sqrt(c1 - c2);
+        }
     }
 }

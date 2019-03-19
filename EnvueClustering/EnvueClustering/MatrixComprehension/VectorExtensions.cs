@@ -1,7 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EnvueClustering.ClusteringBase;
 
 namespace EnvueClustering
 {
@@ -33,6 +35,61 @@ namespace EnvueClustering
 
             var squaredSum = vector.Sum(t => (float) Math.Pow(t, 2));
             return (float) Math.Sqrt(squaredSum);
+        }
+
+        /// <summary>
+        /// Multiplies all elements in a vector by a given scalar value.
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Scale<T>(this IEnumerable<T> vector, float scalar) where T : ITransformable<T>
+        {
+            return vector.Select(value => value.Scale(scalar));
+        }
+        
+        /// <summary>
+        /// Multiplies all elements in a vector by a given scalar value.
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        public static IEnumerable<float> Scale(this IEnumerable<float> vector, float scalar)
+        {
+            return vector.Select(value => value * scalar);
+        }
+
+        /// <summary>
+        /// Divides all elements in a vector by a scalar value.
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> Divide<T>(this IEnumerable<T> vector, float scalar) where T : ITransformable<T>
+        {
+            return vector.Select(value => value.Divide(scalar));
+        }
+        
+        /// <summary>
+        /// Divides all elements in a vector by a scalar value.
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="scalar"></param>
+        /// <returns></returns>
+        public static IEnumerable<float> Divide(this IEnumerable<float> vector, float scalar)
+        {
+            return vector.Select(value => value / scalar);
+        }
+
+        /// <summary>
+        /// Calculates the L1-norm of a vector of points that implement the ITransformable interface.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T ElementWiseSum<T>(this IEnumerable<T> source) where T : ITransformable<T>
+        {
+            return source.Aggregate((result, item) => result.Add(item));
         }
 
         /// <summary>

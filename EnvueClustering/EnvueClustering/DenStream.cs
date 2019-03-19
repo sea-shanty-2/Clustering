@@ -45,6 +45,7 @@ namespace EnvueClustering
 
             while (queuedStream != null && !queuedStream.IsEmpty)
             {
+                // Get the next data point in the data stream
                 var successfulDequeue = queuedStream.TryDequeue(out var dataPoint);
                 if (!successfulDequeue)
                     continue;
@@ -56,12 +57,14 @@ namespace EnvueClustering
                 
                 if (t % checkInterval != 0) continue;
                 
+                // Prune PCMCs
                 foreach (var pcmc in Pcmcs)
                 {
                     if (pcmc.Weight(t) < BETA * MU)
                         Pcmcs.Remove(pcmc);
                 }
 
+                // Prune OCMCs
                 foreach (var ocmc in Ocmcs)
                 {
                     var threshold = GetXiThreshold(ocmc.CreationTime, t, checkInterval);

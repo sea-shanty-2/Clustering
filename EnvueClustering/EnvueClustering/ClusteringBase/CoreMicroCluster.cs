@@ -11,13 +11,13 @@ namespace EnvueClustering.ClusteringBase
     /// Because of the need of uniform transformation of data points during the calculation of
     /// weights and centers, it is required that data points implement the ITransformable interface.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">The type of the data points</typeparam>
     public abstract class CoreMicroCluster<T> where T : ITransformable<T>
     {
-        private readonly IEnumerable<T> _points;
-        private readonly IEnumerable<float> _timeStamps;
-        private readonly Func<T, T, float> _distanceFunction;
-        private readonly Func<float, float> _fading;
+        protected readonly IEnumerable<T> _points;
+        protected readonly IEnumerable<float> _timeStamps;
+        protected readonly Func<T, T, float> _distanceFunction;
+        protected readonly Func<float, float> _fading;
         
         protected CoreMicroCluster(
             IEnumerable<T> points,               // The points contained in the cluster

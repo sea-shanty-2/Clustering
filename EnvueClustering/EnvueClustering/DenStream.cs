@@ -28,9 +28,18 @@ namespace EnvueClustering
         }
 
         
-        public float Cluster(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
+        public T[][] Cluster(IEnumerable<(T, float)> dataStream, Func<T, T, float> similarityFunction)
         {
-            throw new NotImplementedException();
+            // TODO: Make a new class inheriting from Stream so we can add to the data stream while the function runs
+            var clusters = new List<T[]>();
+            var checkInterval = (int)Math.Ceiling((1 / LAMBDA) * Math.Log((BETA * MU) / ((BETA * MU) - 1)));
+
+            while (dataStream.Count() != 0)
+            {
+                // TODO: Make a GetNext() method for the data stream class.
+            }
+
+            return null;
         }
 
         /// <summary>

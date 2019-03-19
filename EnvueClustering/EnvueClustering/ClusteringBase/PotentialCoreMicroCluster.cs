@@ -51,7 +51,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        protected override T Center(float time)
+        public override T Center(float time)
         {
             return CF1(time).Divide(Weight(time));
         }
@@ -61,7 +61,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        protected override float Radius(float time)
+        public override float Radius(float time)
         {
             var w = Weight(time);
             var c1 = CF2(time).Size() / w;

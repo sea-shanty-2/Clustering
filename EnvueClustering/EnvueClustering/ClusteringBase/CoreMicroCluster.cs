@@ -14,8 +14,8 @@ namespace EnvueClustering.ClusteringBase
     /// <typeparam name="T">The type of the data points</typeparam>
     public abstract class CoreMicroCluster<T> where T : ITransformable<T>
     {
-        protected readonly IEnumerable<T> Points;
-        protected readonly IEnumerable<float> TimeStamps;
+        public readonly List<T> Points;
+        public readonly List<float> TimeStamps;
         protected readonly Func<float, float> Fading;
         
         private readonly Func<T, T, float> _distanceFunction;
@@ -26,8 +26,8 @@ namespace EnvueClustering.ClusteringBase
             IEnumerable<float> timeStamps,       // The timestamps for all points
             Func<T, T, float> distanceFunction)  // Function to use when calculating distance (see Radius)
         {
-            Points = points;
-            TimeStamps = timeStamps;
+            Points = points as List<T>;
+            TimeStamps = timeStamps as List<float>;
             Fading = DenStream<T>.Fading;
             _distanceFunction = distanceFunction;
         }
@@ -38,7 +38,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time">The current timestamp.</param>
         /// <returns>The weight of the cluster.</returns>
-        protected virtual float Weight(float time)
+        public virtual float Weight(float time)
         {
             return TimeStamps.Select(t => Fading(time - t)).Sum();
         }
@@ -49,7 +49,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        protected virtual T Center(float time)
+        public virtual T Center(float time)
         {
             var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
             var weightedSum = timeStampedPoints.Select(tuple =>
@@ -67,7 +67,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        protected virtual float Radius(float time)
+        public virtual float Radius(float time)
         {
             var c = Center(time);
             var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));

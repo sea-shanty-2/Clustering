@@ -46,11 +46,21 @@ namespace EnvueClustering.ClusteringBase
             }).ElementWiseSum();
         }
 
+        /// <summary>
+        /// Returns the center of the PCMC defined as CF1 / w.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
         protected override T Center(float time)
         {
             return CF1(time).Divide(Weight(time));
         }
 
+        /// <summary>
+        /// Returns the radius of the PCMC defined as sqrt( (|CF2| / w) - (|CF1| / w)^2 ).
+        /// </summary>
+        /// <param name="time"></param>
+        /// <returns></returns>
         protected override float Radius(float time)
         {
             var w = Weight(time);

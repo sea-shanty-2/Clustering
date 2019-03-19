@@ -33,15 +33,14 @@ namespace EnvueClustering
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Merges a new point p into the cluster map maintained by the DenStream object.
+        /// </summary>
+        /// <param name="p">The point to insert</param>
+        /// <param name="time">The current time (timestamp of the point)</param>
+        /// <param name="similarityFunction">Function to determine the distance between two points.</param>
         public void Merge(T p, float time, Func<T, T, float> similarityFunction)
         {
-            // Find the PCMC closest to p
-            //     Try insert
-            // Find the OCMC closest to p
-            //     Try insert
-            // Create new OCMC 
-            //     Insert
-
             var successfulInsert = false;
 
             if (PCMCs.Count() != 0)
@@ -98,6 +97,17 @@ namespace EnvueClustering
             }
         }
 
+        /// <summary>
+        /// Attempts to insert a point p into a cluster.
+        /// The success of the insertion is based on a predicate on the cluster.
+        /// If the predicate succeeds after inserting p into the cluster, the method
+        /// returns true. If the predicate fails, p is removed from the cluster and
+        /// the method returns false.
+        /// </summary>
+        /// <param name="p">The point to insert in the cluster.</param>
+        /// <param name="cluster">The cluster.</param>
+        /// <param name="predicate">The predicate that must pass before insertion is legal.</param>
+        /// <returns></returns>
         private bool TryInsert(T p, CoreMicroCluster<T> cluster, Predicate<CoreMicroCluster<T>> predicate)
         {
             cluster.Points.Add(p);

@@ -45,19 +45,28 @@ namespace EnvueClustering
 
             while (queuedStream != null && !queuedStream.IsEmpty)
             {
-                var entry = (default(T), default(int));
-                var successfulDequeue = queuedStream.TryDequeue(out entry);
+                var successfulDequeue = queuedStream.TryDequeue(out var dataPoint);
                 if (!successfulDequeue)
                     continue;
 
-                var (p, t) = entry;
+                var (p, t) = dataPoint;
                 
                 // Merge p into the cluster map
                 Merge(p, t, similarityFunction);
-
-                if (t % checkInterval == 0)
+                
+                if (t % checkInterval != 0) continue;
+                
+                foreach (var pcmc in Pcmcs)
                 {
-                    
+                    if (pcmc.Weight(t) < BETA * MU)
+                        Pcmcs.Remove(pcmc);
+                }
+
+                foreach (var ocmc in Ocmcs)
+                {
+                    var threshold = GetXiThreshold(ocmc.CreationTime, t, checkInterval);
+                    if (ocmc.Weight(t) < threshold)
+                        Ocmcs.Remove(ocmc);
                 }
             }
         }
@@ -153,6 +162,13 @@ namespace EnvueClustering
 
             cluster.Points.Remove(p);
             return false;
+        }
+
+        private float GetXiThreshold(int creationTime, int dataPointTime, int checkInterval)
+        {
+            var numerator = Math.Pow(2, (-LAMBDA * (dataPointTime - creationTime + checkInterval))) - 1;
+            var denominator = Math.Pow(2, (-LAMBDA * checkInterval)) - 1;
+            return (float) (numerator / denominator);
         }
     }
 }

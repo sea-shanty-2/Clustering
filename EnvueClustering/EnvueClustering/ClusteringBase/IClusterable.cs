@@ -11,6 +11,6 @@ namespace EnvueClustering.ClusteringBase
         /// <param name="dataStream">A stream of data points paired with a timestamp.</param>
         /// <param name="similarityFunction"></param>
         /// <returns></returns>
-        T[][] Cluster(IEnumerable<(T, float)> dataStream, Func<T, T, float> similarityFunction);
+        T[][] Cluster(IEnumerable<(T, int)> dataStream, Func<T, T, float> similarityFunction);
     }
 }

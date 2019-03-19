@@ -13,7 +13,7 @@ namespace EnvueClustering.ClusteringBase
     {
         public PotentialCoreMicroCluster(
             IEnumerable<T> points,
-            IEnumerable<float> timeStamps,
+            IEnumerable<int> timeStamps,
             Func<T, T, float> distanceFunction) : base(points, timeStamps, distanceFunction) { }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public T CF1(float time)
+        public T CF1(int time)
         {
             var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
             return timeStampedPoints.Select(tuple =>
@@ -36,7 +36,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public T CF2(float time)
+        public T CF2(int time)
         {
             var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
             return timeStampedPoints.Select(tuple =>
@@ -51,7 +51,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public override T Center(float time)
+        public override T Center(int time)
         {
             return CF1(time).Divide(Weight(time));
         }
@@ -61,7 +61,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public override float Radius(float time)
+        public override float Radius(int time)
         {
             var w = Weight(time);
             var c1 = CF2(time).Size() / w;

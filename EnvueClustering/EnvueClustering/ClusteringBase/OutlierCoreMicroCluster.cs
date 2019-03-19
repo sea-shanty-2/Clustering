@@ -9,7 +9,7 @@ namespace EnvueClustering.ClusteringBase
     {        
         public OutlierCoreMicroCluster(
             IEnumerable<T> points, 
-            IEnumerable<float> timeStamps, 
+            IEnumerable<int> timeStamps, 
             Func<T, T, float> distanceFunction) : base(points, timeStamps, distanceFunction)
         {
         }
@@ -19,6 +19,6 @@ namespace EnvueClustering.ClusteringBase
         /// the set of points. NOTE: Maybe the creation time should be static. Try it out
         /// and see how it works.
         /// </summary>
-        public float CreationTime => TimeStamps.ToImmutableSortedSet().First();
+        public int CreationTime => TimeStamps.ToImmutableSortedSet().First();
     }
 }

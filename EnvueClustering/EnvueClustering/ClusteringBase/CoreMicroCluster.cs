@@ -14,20 +14,22 @@ namespace EnvueClustering.ClusteringBase
     /// <typeparam name="T">The type of the data points</typeparam>
     public abstract class CoreMicroCluster<T> where T : ITransformable<T>
     {
-        protected readonly IEnumerable<T> _points;
-        protected readonly IEnumerable<float> _timeStamps;
-        protected readonly Func<T, T, float> _distanceFunction;
-        protected readonly Func<float, float> _fading;
+        protected readonly IEnumerable<T> Points;
+        protected readonly IEnumerable<float> TimeStamps;
+        protected readonly Func<float, float> Fading;
+        
+        private readonly Func<T, T, float> _distanceFunction;
+
         
         protected CoreMicroCluster(
             IEnumerable<T> points,               // The points contained in the cluster
             IEnumerable<float> timeStamps,       // The timestamps for all points
             Func<T, T, float> distanceFunction)  // Function to use when calculating distance (see Radius)
         {
-            _points = points;
-            _timeStamps = timeStamps;
+            Points = points;
+            TimeStamps = timeStamps;
+            Fading = DenStream<T>.Fading;
             _distanceFunction = distanceFunction;
-            _fading = DenStream.Fading;
         }
 
         /// <summary>
@@ -38,7 +40,7 @@ namespace EnvueClustering.ClusteringBase
         /// <returns>The weight of the cluster.</returns>
         protected virtual float Weight(float time)
         {
-            return _timeStamps.Select(t => _fading(time - t)).Sum();
+            return TimeStamps.Select(t => Fading(time - t)).Sum();
         }
 
         /// <summary>
@@ -49,11 +51,11 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         protected virtual T Center(float time)
         {
-            var timeStampedPoints = _points.Zip(_timeStamps, (p, t) => (p, t));
+            var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
             var weightedSum = timeStampedPoints.Select(tuple =>
             {
                 var (p, t) = tuple;
-                return p.Scale(_fading(time - t));
+                return p.Scale(Fading(time - t));
             }).ElementWiseSum();
 
             return weightedSum.Divide(Weight(time));
@@ -68,12 +70,12 @@ namespace EnvueClustering.ClusteringBase
         protected virtual float Radius(float time)
         {
             var c = Center(time);
-            var timeStampedPoints = _points.Zip(_timeStamps, (p, t) => (p, t));
+            var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
             return timeStampedPoints.Select(tuple =>
             {
                 var (p, t) = tuple;
                 var dist = _distanceFunction(p, c);
-                return _fading(time - t) * dist;
+                return Fading(time - t) * dist;
             }).Sum() / Weight(time);
         }
     }

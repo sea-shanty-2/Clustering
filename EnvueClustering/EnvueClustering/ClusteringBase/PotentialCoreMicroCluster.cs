@@ -23,11 +23,11 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         public T CF1(float time)
         {
-            var timeStampedPoints = _points.Zip(_timeStamps, (p, t) => (p, t));
+            var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
             return timeStampedPoints.Select(tuple =>
             {
                 var (p, t) = tuple;
-                return p.Scale(_fading(time - t));
+                return p.Scale(Fading(time - t));
             }).ElementWiseSum();
         }
 
@@ -38,11 +38,11 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         public T CF2(float time)
         {
-            var timeStampedPoints = _points.Zip(_timeStamps, (p, t) => (p, t));
+            var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
             return timeStampedPoints.Select(tuple =>
             {
                 var (p, t) = tuple;
-                return p.Pow(2).Scale(_fading(time - t));
+                return p.Pow(2).Scale(Fading(time - t));
             }).ElementWiseSum();
         }
 

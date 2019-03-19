@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace EnvueClustering.ClusteringBase
 {
-    public interface IClusterable
+    public interface IClusterable<T>
     {
-        float Cluster<T>(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction);
+        float Cluster(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction);
     }
 }

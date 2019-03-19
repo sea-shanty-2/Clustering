@@ -19,6 +19,6 @@ namespace EnvueClustering.ClusteringBase
         /// the set of points. NOTE: Maybe the creation time should be static. Try it out
         /// and see how it works.
         /// </summary>
-        public float CreationTime => _timeStamps.ToImmutableSortedSet().First();
+        public float CreationTime => TimeStamps.ToImmutableSortedSet().First();
     }
 }

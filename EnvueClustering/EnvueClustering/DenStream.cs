@@ -4,12 +4,10 @@ using EnvueClustering.ClusteringBase;
 
 namespace EnvueClustering
 {
-    public class DenStream : IClusterable
+    public class DenStream<T> : IClusterable<T>
     {
-        #region Constants
         public const float LAMBDA = 0.5f;
         public const float EPSILON = 0.5f;
-        #endregion
         
         
         
@@ -24,9 +22,21 @@ namespace EnvueClustering
         }
 
         
-        public float Cluster<T>(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
+        public float Cluster(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
         {
             throw new NotImplementedException();
+        }
+
+        public void Merge(T p)
+        {
+            // Find the PCMC closest to p
+            //     Try insert
+            // Find the OCMC closest to p
+            //     Try insert
+            // Create new OCMC 
+            //     Insert
+            
+            
         }
     }
 }

@@ -26,8 +26,8 @@ namespace EnvueClustering.ClusteringBase
             IEnumerable<int> timeStamps,       // The timestamps for all points
             Func<T, T, float> distanceFunction)  // Function to use when calculating distance (see Radius)
         {
-            Points = points as List<T>;
-            TimeStamps = timeStamps as List<int>;
+            Points = new List<T>(points);
+            TimeStamps = new List<int>(timeStamps);
             Fading = DenStream<T>.Fading;
             _distanceFunction = distanceFunction;
         }
@@ -77,6 +77,11 @@ namespace EnvueClustering.ClusteringBase
                 var dist = _distanceFunction(p, c);
                 return Fading(time - t) * dist;
             }).Sum() / Weight(time);
+        }
+
+        public override string ToString()
+        {
+            return Points.Pretty();
         }
     }
 }

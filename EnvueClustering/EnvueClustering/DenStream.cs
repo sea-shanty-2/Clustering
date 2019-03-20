@@ -5,21 +5,28 @@ using System.Collections.Immutable;
 using System.Linq;
 using EnvueClustering.ClusteringBase;
 using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace EnvueClustering
 {
     public class DenStream<T> : IClusterable<T> where T : ITransformable<T>
     {
-        public const float LAMBDA = 0.5f;
-        public const float EPSILON = 0.5f;
-        public const float BETA = 0.5f;
-        public const float MU = 0.5f;
+        public const float LAMBDA = 1;
+        public const float EPSILON = 25f;
+        public const float BETA = 25f;
+        public const float MU = 25f;
 
         private List<PotentialCoreMicroCluster<T>> Pcmcs;
         private List<OutlierCoreMicroCluster<T>> Ocmcs;
 
         private IClusterable<CoreMicroCluster<T>> DbScan;
+        
+        public DenStream()
+        {
+            Pcmcs = new List<PotentialCoreMicroCluster<T>>();
+            Ocmcs = new List<OutlierCoreMicroCluster<T>>();
+        }
 
         /// <summary>
         /// Implements the fading functions as described in the DenStream paper.
@@ -31,7 +38,7 @@ namespace EnvueClustering
             return (float)Math.Pow(2, LAMBDA * t);
         }
 
-        public async void MaintainClusterMap(
+        public void MaintainClusterMap(
             IEnumerable<(T, int)> dataStream, 
             Func<T, T, float> similarityFunction)
         {
@@ -42,6 +49,8 @@ namespace EnvueClustering
             var checkInterval = (int) Math.Ceiling((1 / LAMBDA) * Math.Log(
                                                         (BETA * MU) /
                                                        ((BETA * MU) - 1)));
+
+            Console.WriteLine($"Number of elements is {queuedStream.Count()} and check interval is {checkInterval}");
 
             while (queuedStream != null && !queuedStream.IsEmpty)
             {
@@ -72,6 +81,13 @@ namespace EnvueClustering
                         Ocmcs.Remove(ocmc);
                 }
             }
+
+            Pcmcs.ForEach(cluster => Console.WriteLine(cluster.ToString()));
+
+            Console.WriteLine("SUMMARY:");
+            Console.WriteLine($"    Number of PCMCs is {Pcmcs.Count()}");
+            Console.WriteLine($"    Average cluster size is {Pcmcs.Select(p => p.Points.Count).Sum() / Pcmcs.Count()}");
+            Console.WriteLine($"    Total number of points remaining is {Pcmcs.Select(p => p.Points.Count).Sum()}");
         }
 
         public T[][] Cluster(IEnumerable<(T, int)> dataStream, Func<T, T, float> similarityFunction)
@@ -103,6 +119,10 @@ namespace EnvueClustering
                 // Try to insert considering the new radius
                 successfulInsert = TryInsert(p, cluster, 
                     newCluster => newCluster.Radius(time) <= EPSILON);
+                if (successfulInsert)
+                {
+                    Console.WriteLine($"Successfully inserted into a PCMC");
+                }
             }
 
             if (!successfulInsert && Ocmcs.Count() != 0)
@@ -121,6 +141,7 @@ namespace EnvueClustering
                 
                 if (successfulInsert)
                 {
+                    string msg = $"Successfully inserted into an OCMC";
                     // Check the weight
                     if (cluster.Weight(time) > BETA * MU)
                     {
@@ -130,7 +151,10 @@ namespace EnvueClustering
                             cluster.Points, 
                             cluster.TimeStamps, 
                             similarityFunction));
+                        msg += " and converted it to a PCMC";
                     }
+
+                    Console.WriteLine(msg);
                 }
             }
 
@@ -141,6 +165,8 @@ namespace EnvueClustering
                     new [] {p}, 
                     new [] {time}, 
                     similarityFunction));
+                
+                Console.WriteLine($"Successfully created a new OCMC");
             }
         }
 

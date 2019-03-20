@@ -95,11 +95,11 @@ namespace EnvueClustering
         /// <summary>
         /// Returns a pretty-printed representation of a vector.
         /// </summary>
-        public static string Pretty<T>(this T[] vector)
+        public static string Pretty<T>(this IEnumerable<T> vector)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append("[");
-            stringBuilder.AppendJoin(", ", vector);
+            stringBuilder.AppendJoin(" ", vector);
             stringBuilder.Append("]");
             return stringBuilder.ToString();
         }

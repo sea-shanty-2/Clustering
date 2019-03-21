@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 namespace EnvueClustering.ClusteringBase
 {
@@ -13,8 +14,7 @@ namespace EnvueClustering.ClusteringBase
     {
         public PotentialCoreMicroCluster(
             IEnumerable<T> points,
-            IEnumerable<int> timeStamps,
-            Func<T, T, float> distanceFunction) : base(points, timeStamps, distanceFunction) { }
+            Func<T, T, float> distanceFunction) : base(points, distanceFunction) { }
 
         /// <summary>
         /// Returns the CF1 measure of the cluster defined as the linear sum of time-weighted points.
@@ -23,12 +23,9 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         public T CF1(int time)
         {
-            var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
-            return timeStampedPoints.Select(tuple =>
-            {
-                var (p, t) = tuple;
-                return p.Scale(Fading(time - t));
-            }).ElementWiseSum();
+            return Points
+                .Select(p => p.Scale(Fading(time - p.TimeStamp)))
+                .ElementWiseSum();
         }
 
         /// <summary>
@@ -38,12 +35,9 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         public T CF2(int time)
         {
-            var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
-            return timeStampedPoints.Select(tuple =>
-            {
-                var (p, t) = tuple;
-                return p.Pow(2).Scale(Fading(time - t));
-            }).ElementWiseSum();
+            return Points
+                .Select(p => p.Pow(2).Scale(Fading(time - p.TimeStamp)))
+                .ElementWiseSum();
         }
 
         /// <summary>
@@ -66,7 +60,9 @@ namespace EnvueClustering.ClusteringBase
             var w = Weight(time);
             var c1 = CF2(time).Size() / w;
             var c2 = Math.Pow(CF1(time).Size() / w, 2);
-            return (float)Math.Sqrt(c1 - c2);
+            var radius = (float)Math.Sqrt(Math.Abs(c1 - c2));
+
+            return radius;
         }
     }
 }

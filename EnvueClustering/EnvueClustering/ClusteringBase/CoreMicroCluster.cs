@@ -15,7 +15,6 @@ namespace EnvueClustering.ClusteringBase
     public abstract class CoreMicroCluster<T> where T : ITransformable<T>
     {
         public readonly List<T> Points;
-        public readonly List<int> TimeStamps;
         protected readonly Func<float, float> Fading;
         
         private readonly Func<T, T, float> _distanceFunction;
@@ -23,11 +22,9 @@ namespace EnvueClustering.ClusteringBase
         
         protected CoreMicroCluster(
             IEnumerable<T> points,               // The points contained in the cluster
-            IEnumerable<int> timeStamps,       // The timestamps for all points
             Func<T, T, float> distanceFunction)  // Function to use when calculating distance (see Radius)
         {
             Points = new List<T>(points);
-            TimeStamps = new List<int>(timeStamps);
             Fading = DenStream<T>.Fading;
             _distanceFunction = distanceFunction;
         }
@@ -40,7 +37,7 @@ namespace EnvueClustering.ClusteringBase
         /// <returns>The weight of the cluster.</returns>
         public virtual float Weight(int time)
         {
-            return TimeStamps.Select(t => Fading(time - t)).Sum();
+            return Points.Select(p => Fading(time - p.TimeStamp)).Sum();
         }
 
         /// <summary>
@@ -51,14 +48,11 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         public virtual T Center(int time)
         {
-            var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
-            var weightedSum = timeStampedPoints.Select(tuple =>
-            {
-                var (p, t) = tuple;
-                return p.Scale(Fading(time - t));
-            }).ElementWiseSum();
+            var wSum = Points
+                .Select(p => p.Scale(Fading(time - p.TimeStamp)))
+                .ElementWiseSum();
 
-            return weightedSum.Divide(Weight(time));
+            return wSum.Divide(Weight(time));
         }
 
         /// <summary>
@@ -70,12 +64,11 @@ namespace EnvueClustering.ClusteringBase
         public virtual float Radius(int time)
         {
             var c = Center(time);
-            var timeStampedPoints = Points.Zip(TimeStamps, (p, t) => (p, t));
-            return timeStampedPoints.Select(tuple =>
+
+            return Points.Select(p =>
             {
-                var (p, t) = tuple;
                 var dist = _distanceFunction(p, c);
-                return Fading(time - t) * dist;
+                return Fading(time - p.TimeStamp) * dist;
             }).Sum() / Weight(time);
         }
 

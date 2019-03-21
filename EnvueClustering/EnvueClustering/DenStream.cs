@@ -7,15 +7,18 @@ using EnvueClustering.ClusteringBase;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using EnvueClustering.Data;
 
 namespace EnvueClustering
 {
     public class DenStream<T> : IClusterable<T> where T : ITransformable<T>
     {
-        public const float LAMBDA = 1;
-        public const float EPSILON = 25f;
-        public const float BETA = 25f;
-        public const float MU = 25f;
+        public const float LAMBDA = .025f;
+        public const float EPSILON = 15f;
+        public const float BETA = 0.2f;
+        public const float MU = 6f;
+        
+        public int CurrentTime;
 
         private List<PotentialCoreMicroCluster<T>> Pcmcs;
         private List<OutlierCoreMicroCluster<T>> Ocmcs;
@@ -35,7 +38,7 @@ namespace EnvueClustering
         /// algorithm began running. </param>
         public static float Fading(float t)
         {
-            return (float)Math.Pow(2, LAMBDA * t);
+            return (float)Math.Pow(2, -LAMBDA * t);
         }
 
         public void MaintainClusterMap(
@@ -50,8 +53,6 @@ namespace EnvueClustering
                                                         (BETA * MU) /
                                                        ((BETA * MU) - 1)));
 
-            Console.WriteLine($"Number of elements is {queuedStream.Count()} and check interval is {checkInterval}");
-
             while (queuedStream != null && !queuedStream.IsEmpty)
             {
                 // Get the next data point in the data stream
@@ -60,6 +61,7 @@ namespace EnvueClustering
                     continue;
 
                 var (p, t) = dataPoint;
+                CurrentTime = t;
                 
                 // Merge p into the cluster map
                 Merge(p, t, similarityFunction);
@@ -70,24 +72,22 @@ namespace EnvueClustering
                 foreach (var pcmc in Pcmcs)
                 {
                     if (pcmc.Weight(t) < BETA * MU)
+                    {
                         Pcmcs.Remove(pcmc);
+                    }
+
                 }
 
                 // Prune OCMCs
-                foreach (var ocmc in Ocmcs)
+                foreach (var ocmc in Enumerable.Reverse(Ocmcs))
                 {
                     var threshold = GetXiThreshold(ocmc.CreationTime, t, checkInterval);
                     if (ocmc.Weight(t) < threshold)
+                    {
                         Ocmcs.Remove(ocmc);
+                    }
                 }
             }
-
-            Pcmcs.ForEach(cluster => Console.WriteLine(cluster.ToString()));
-
-            Console.WriteLine("SUMMARY:");
-            Console.WriteLine($"    Number of PCMCs is {Pcmcs.Count()}");
-            Console.WriteLine($"    Average cluster size is {Pcmcs.Select(p => p.Points.Count).Sum() / Pcmcs.Count()}");
-            Console.WriteLine($"    Total number of points remaining is {Pcmcs.Select(p => p.Points.Count).Sum()}");
         }
 
         public T[][] Cluster(IEnumerable<(T, int)> dataStream, Func<T, T, float> similarityFunction)
@@ -102,13 +102,13 @@ namespace EnvueClustering
         /// <param name="p">The point to insert</param>
         /// <param name="time">The current time (timestamp of the point)</param>
         /// <param name="similarityFunction">Function to determine the distance between two points.</param>
-        public void Merge(T p, int time, Func<T, T, float> similarityFunction)
+        private void Merge(T p, int time, Func<T, T, float> similarityFunction)
         {
             var successfulInsert = false;
 
             if (Pcmcs.Count() != 0)
             {
-                // Find the closest PCMC
+                // Find the closest PCMCs
                 var clustersWithDistance = Pcmcs
                     .Select(pcmc => (pcmc, similarityFunction(p, pcmc.Center(time))))
                     .ToList();
@@ -119,10 +119,6 @@ namespace EnvueClustering
                 // Try to insert considering the new radius
                 successfulInsert = TryInsert(p, cluster, 
                     newCluster => newCluster.Radius(time) <= EPSILON);
-                if (successfulInsert)
-                {
-                    Console.WriteLine($"Successfully inserted into a PCMC");
-                }
             }
 
             if (!successfulInsert && Ocmcs.Count() != 0)
@@ -141,7 +137,6 @@ namespace EnvueClustering
                 
                 if (successfulInsert)
                 {
-                    string msg = $"Successfully inserted into an OCMC";
                     // Check the weight
                     if (cluster.Weight(time) > BETA * MU)
                     {
@@ -149,12 +144,8 @@ namespace EnvueClustering
                         Ocmcs.Remove(cluster);
                         Pcmcs.Add(new PotentialCoreMicroCluster<T>(
                             cluster.Points, 
-                            cluster.TimeStamps, 
                             similarityFunction));
-                        msg += " and converted it to a PCMC";
                     }
-
-                    Console.WriteLine(msg);
                 }
             }
 
@@ -163,12 +154,11 @@ namespace EnvueClustering
                 // Create a new OCMC
                 Ocmcs.Add(new OutlierCoreMicroCluster<T>(
                     new [] {p}, 
-                    new [] {time}, 
-                    similarityFunction));
-                
-                Console.WriteLine($"Successfully created a new OCMC");
+                    similarityFunction));                
             }
         }
+
+        public List<PotentialCoreMicroCluster<T>> PotentialCoreMicroClusters => Pcmcs.ToList();
 
         /// <summary>
         /// Attempts to insert a point p into a cluster.

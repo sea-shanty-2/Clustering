@@ -48,5 +48,10 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <returns></returns>
         float Size();
+
+        /// <summary>
+        /// The timestamp of a point. 
+        /// </summary>
+        int TimeStamp { get; set; }
     }
 }

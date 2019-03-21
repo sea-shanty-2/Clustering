@@ -80,7 +80,7 @@ namespace EnvueClustering
             }
         }
 
-        public T[][] Cluster(IEnumerable<(T, int)> dataStream, Func<T, T, float> similarityFunction)
+        public T[][] Cluster(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
         {
             // Apply DBSCAN to PCMC.
             throw new NotImplementedException(_dbscan.ToString());

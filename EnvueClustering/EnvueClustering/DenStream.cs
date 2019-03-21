@@ -13,22 +13,22 @@ namespace EnvueClustering
 {
     public class DenStream<T> : IClusterable<T> where T : ITransformable<T>
     {
-        public const float LAMBDA = .0025f; // Weight fading coefficient - the higher the value, the faster the fade
-        public const float EPSILON = 15f;  // Minimum number of points in a core-micro-cluster
-        public const float BETA = 0.2f;    // Indicator for threshold between potential- and outlier MCs
+        public const float LAMBDA = .01f; // Weight fading coefficient - the higher the value, the faster the fade
+        public const float EPSILON = 30f;  // Minimum number of points in a core-micro-cluster
+        public const float BETA = 1.2f;    // Indicator for threshold between potential- and outlier MCs
         public const float MU = 6f;        // Minimum overall weight of a micro-cluster
         
         public int CurrentTime;
 
-        private List<PotentialCoreMicroCluster<T>> Pcmcs;
-        private List<OutlierCoreMicroCluster<T>> Ocmcs;
+        private readonly List<PotentialCoreMicroCluster<T>> _pcmcs;
+        private readonly List<OutlierCoreMicroCluster<T>> _ocmcs;
 
-        private IClusterable<CoreMicroCluster<T>> DbScan;
+        private IClusterable<CoreMicroCluster<T>> _dbscan;
         
         public DenStream()
         {
-            Pcmcs = new List<PotentialCoreMicroCluster<T>>();
-            Ocmcs = new List<OutlierCoreMicroCluster<T>>();
+            _pcmcs = new List<PotentialCoreMicroCluster<T>>();
+            _ocmcs = new List<OutlierCoreMicroCluster<T>>();
         }
 
         /// <summary>
@@ -69,10 +69,10 @@ namespace EnvueClustering
                 if (t % checkInterval != 0) continue;
                 
                 // Prune PCMCs
-                Pcmcs.RemoveAll(pcmc => pcmc.Weight(t) < BETA * MU);
+                _pcmcs.RemoveAll(pcmc => pcmc.Weight(t) < BETA * MU);
 
                 // Prune OCMCs
-                Ocmcs.RemoveAll(ocmc =>
+                _ocmcs.RemoveAll(ocmc =>
                 {
                     var threshold = GetXiThreshold(ocmc.CreationTime, t, checkInterval);
                     return ocmc.Weight(t) < threshold;
@@ -83,7 +83,7 @@ namespace EnvueClustering
         public T[][] Cluster(IEnumerable<(T, int)> dataStream, Func<T, T, float> similarityFunction)
         {
             // Apply DBSCAN to PCMC.
-            throw new NotImplementedException();
+            throw new NotImplementedException(_dbscan.ToString());
         }
 
         /// <summary>
@@ -96,10 +96,10 @@ namespace EnvueClustering
         {
             var successfulInsert = false;
 
-            if (Pcmcs.Count() != 0)
+            if (_pcmcs.Count() != 0)
             {
                 // Find the closest PCMCs
-                var clustersWithDistance = Pcmcs
+                var clustersWithDistance = _pcmcs
                     .Select(pcmc => (pcmc, similarityFunction(p, pcmc.Center(time))))
                     .ToList();
                 
@@ -109,12 +109,15 @@ namespace EnvueClustering
                 // Try to insert considering the new radius
                 successfulInsert = TryInsert(p, cluster, 
                     newCluster => newCluster.Radius(time) <= EPSILON);
+                
+//                if (successfulInsert)
+//                    Console.WriteLine($"Inserted into PCMC with radius {cluster.Radius(time)}");
             }
 
-            if (!successfulInsert && Ocmcs.Count() != 0)
+            if (!successfulInsert && _ocmcs.Count() != 0)
             {
                 // Find the closest OCMC
-                var clustersWithDistance = Ocmcs
+                var clustersWithDistance = _ocmcs
                     .Select(pcmc => (pcmc, similarityFunction(p, pcmc.Center(time))))
                     .ToList();
                 
@@ -127,28 +130,33 @@ namespace EnvueClustering
                 
                 if (successfulInsert)
                 {
+                    
                     // Check the weight
-                    if (cluster.Weight(time) > BETA * MU)
+                    if ((cluster.Weight(time) > BETA * MU) && cluster.Radius(time) <= EPSILON)
                     {
                         // Convert this OCMC into a new PCMC
-                        Ocmcs.Remove(cluster);
-                        Pcmcs.Add(new PotentialCoreMicroCluster<T>(
+                        _ocmcs.Remove(cluster);
+                        _pcmcs.Add(new PotentialCoreMicroCluster<T>(
                             cluster.Points, 
                             similarityFunction));
+                        //Console.WriteLine($"Inserted into OCMC --> PCMC with radius {cluster.Radius(time)}");
                     }
                 }
             }
 
             if (!successfulInsert)
             {
+                var cluster = new OutlierCoreMicroCluster<T>(
+                    new[] {p},
+                    similarityFunction);
+                
                 // Create a new OCMC
-                Ocmcs.Add(new OutlierCoreMicroCluster<T>(
-                    new [] {p}, 
-                    similarityFunction));                
+                _ocmcs.Add(cluster);
             }
         }
 
-        public List<PotentialCoreMicroCluster<T>> PotentialCoreMicroClusters => Pcmcs.ToList();
+        public List<PotentialCoreMicroCluster<T>> PotentialCoreMicroClusters => _pcmcs.ToList();
+        public List<OutlierCoreMicroCluster<T>> OutlierCoreMicroClusters => _ocmcs.ToList();
 
         /// <summary>
         /// Attempts to insert a point p into a cluster.

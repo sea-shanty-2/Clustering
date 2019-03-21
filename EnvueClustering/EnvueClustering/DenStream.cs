@@ -69,24 +69,14 @@ namespace EnvueClustering
                 if (t % checkInterval != 0) continue;
                 
                 // Prune PCMCs
-                foreach (var pcmc in Pcmcs)
-                {
-                    if (pcmc.Weight(t) < BETA * MU)
-                    {
-                        Pcmcs.Remove(pcmc);
-                    }
-
-                }
+                Pcmcs.RemoveAll(pcmc => pcmc.Weight(t) < BETA * MU);
 
                 // Prune OCMCs
-                foreach (var ocmc in Enumerable.Reverse(Ocmcs))
+                Ocmcs.RemoveAll(ocmc =>
                 {
                     var threshold = GetXiThreshold(ocmc.CreationTime, t, checkInterval);
-                    if (ocmc.Weight(t) < threshold)
-                    {
-                        Ocmcs.Remove(ocmc);
-                    }
-                }
+                    return ocmc.Weight(t) < threshold;
+                });
             }
         }
 

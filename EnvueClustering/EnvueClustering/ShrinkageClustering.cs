@@ -64,8 +64,8 @@ namespace EnvueClustering
                     return i;
                 });
 
-                foreach (var emptyColumn in emptyColumns)
-                    A.DeleteColumn(emptyColumn);
+                A = emptyColumns
+                    .Aggregate(A, (m, emptyColumn) => m.DeleteColumn(emptyColumn));
 
                 _k = A.Columns.Count();
                 

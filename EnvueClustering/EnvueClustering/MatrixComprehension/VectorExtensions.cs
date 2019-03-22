@@ -145,7 +145,7 @@ namespace EnvueClustering
         /// <returns>A range [start, max - 1]</returns>
         public static IEnumerable<int> Range(this int max, int start = 0)
         {
-            return Enumerable.Range(start, max - 1);
+            return Enumerable.Range(start, max);
         }
         
         /// <summary>

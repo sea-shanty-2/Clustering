@@ -410,13 +410,11 @@ namespace EnvueClustering
             var matrix = new List<float[]>();
             foreach (var (k, column) in Columns.Enumerate())
             {
-                if (k == i)
-                    continue;
-                
-                matrix.Add(column);
+                if (k != i)
+                    matrix.Add(column);
             }
             
-            return new Matrix(matrix.ToArray());
+            return new Matrix(matrix.ToArray()).T;
         }
 
         /// <inheritdoc />
@@ -532,6 +530,17 @@ namespace EnvueClustering
             return this
                 .Select(row => row.Max())
                 .Max();
+        }
+        
+        /// <summary>
+        /// Returns the largest value in the matrix.
+        /// </summary>
+        /// <returns></returns>
+        public float Min()
+        {
+            return this
+                .Select(row => row.Min())
+                .Min();
         }
     }
 }

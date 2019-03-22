@@ -52,7 +52,7 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-        public override float Radius(int time)
+        public float CRadius(int time)
         {
             var w = Weight(time);
             var c1 = CF2(time).Size() / w;

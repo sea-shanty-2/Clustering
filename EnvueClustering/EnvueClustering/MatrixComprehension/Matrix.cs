@@ -533,7 +533,7 @@ namespace EnvueClustering
         }
         
         /// <summary>
-        /// Returns the largest value in the matrix.
+        /// Returns the smallest value in the matrix.
         /// </summary>
         /// <returns></returns>
         public float Min()

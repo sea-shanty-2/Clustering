@@ -145,7 +145,17 @@ namespace EnvueClustering
         /// <returns>A range [start, max - 1]</returns>
         public static IEnumerable<int> Range(this int max, int start = 0)
         {
-            return Enumerable.Range(start, max - 1);
+            return Enumerable.Range(start, max);
+        }
+        
+        /// <summary>
+        /// Returns an enumerable of integers with the same value.
+        /// </summary>
+        /// <param name="value">The values of the enumerable.</param>
+        /// <param name="length">The length of the enumerable.</param>
+        public static IEnumerable<T> Repeat<T>(this T value, int length)
+        {
+            return length.Range().Select(_ => value);
         }
 
         /// <summary>
@@ -159,6 +169,44 @@ namespace EnvueClustering
             var enumerable = source as T[] ?? source.ToArray();  // So we don't enumerate several times.
             var length = enumerable.Length;
             return enumerable.Zip(length.Range(), (val, i) => (i, val));
-        }        
+        }
+
+        /// <summary>
+        /// Returns the index of the smallest element in the enumerable.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static int ArgMin(this IEnumerable<float> source)
+        {
+            var sorted = source.Enumerate().ToList();
+            sorted.Sort((p1, p2) =>
+            {
+                var (i1, v1) = p1;
+                var (i2, v2) = p2;
+                return v1.CompareTo(v2);
+            });
+
+            var (iMin, vMin) = sorted.First();
+            return iMin;
+        }
+        
+        /// <summary>
+        /// Returns the index of the largest element in the enumerable.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static int ArgMax(this IEnumerable<float> source)
+        {
+            var sorted = source.Enumerate().ToList();
+            sorted.Sort((p1, p2) =>
+            {
+                var (i1, v1) = p1;
+                var (i2, v2) = p2;
+                return v1.CompareTo(v2);
+            });
+
+            var (iMin, vMin) = sorted.Last();
+            return iMin;
+        }
     }
 }

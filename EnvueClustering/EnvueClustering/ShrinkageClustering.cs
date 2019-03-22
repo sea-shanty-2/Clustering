@@ -34,7 +34,7 @@ namespace EnvueClustering
         /// <param name="similarityFunction">Similarity function for points in the data stream.
         /// Must output 0 if elements are equal, otherwise a positive value.</param>
         /// <returns></returns>
-        private float[][] ShrinkClusters(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
+        private Matrix ShrinkClusters(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
         {
             var S = Matrix.SimilarityMatrix(dataStream, similarityFunction);
             var SBar = 1 - 2 * S;

@@ -8,7 +8,8 @@ namespace EnvueClustering
 {
     public class ShrinkageClustering<T> : IClusterable<T> where T : ITransformable<T>
     {
-        private int _k, _maxIterations;
+        private int _k;
+        private readonly int _maxIterations;
         
         /// <summary>
         /// Initializes a shrinkage clustering algorithm. 

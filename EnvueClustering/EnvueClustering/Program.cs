@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,28 @@ namespace EnvueClustering
         static void Main(string[] args)
         {
             //PCMCTest();
-            DenStreamSyntheticTest();
+            //DenStreamSyntheticTest();
+            ShrinkageClusteringTest();
+        }
+
+        static void ShrinkageClusteringTest()
+        {
+            var simplePoints = new List<EuclideanPoint>()
+            {
+                new EuclideanPoint(0, 0, 0),
+                new EuclideanPoint(1, 0, 0),
+                new EuclideanPoint(2, 0, 0),
+                new EuclideanPoint(3, 0, 0),
+                new EuclideanPoint(4, 0, 0)
+            };
+
+            var m = Matrix.SimilarityMatrix(simplePoints,
+                (p, o) => (float) Math.Sqrt(Math.Pow(p.X - o.X, 2) + Math.Pow(p.Y - o.Y, 2)),
+                normalize: true,
+                inverse: true);
+
+            Console.WriteLine(m);
+
         }
 
         static void PCMCTest()

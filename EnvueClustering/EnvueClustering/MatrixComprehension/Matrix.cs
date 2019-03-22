@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
@@ -24,7 +25,7 @@ namespace EnvueClustering
         /// <summary>
         /// Returns a zero-valued matrix of shape (rows, columns). 
         /// </summary>
-        public Matrix(int rows, int columns)
+        public Matrix(int rows, int columns, float values = 0)
         {
             _rows = rows;
             _columns = columns;
@@ -32,6 +33,25 @@ namespace EnvueClustering
             for (var i = 0; i < rows; i++)
             {
                 for (var j = 0; j < columns; j++)
+                {
+                    zeros[i, j] = values;
+                }
+            }
+
+            _m = zeros;
+        }
+
+        public Matrix(int[] shape)
+        {
+            if (shape.Length != 2)
+                throw new ArgumentException($"Shape must be an array with exactly two elements.");
+
+            _rows = shape[0];
+            _columns = shape[1];
+            var zeros = new float[_rows, _columns];
+            for (var i = 0; i < _rows; i++)
+            {
+                for (var j = 0; j < _columns; j++)
                 {
                     zeros[i, j] = 0;
                 }
@@ -203,6 +223,26 @@ namespace EnvueClustering
         }
         
         /// <summary>
+        /// Divide all values in a matrix by a scalar value. 
+        /// </summary>
+        /// <param name="m1">Matrix to scale.</param>
+        /// <param name="scalar">A scalar value.</param>
+        /// <returns>A new matrix where all cell values have been multiplied by the provided scalar value.</returns>
+        public static Matrix operator /(Matrix m1, float scalar)
+        {
+            var matrix = new float[m1.Shape[0], m1.Shape[1]];
+            for (var i = 0; i < m1.Shape[0]; i++)
+            {
+                for (var j = 0; j < m1.Shape[1]; j++)
+                {
+                    matrix[i, j] = m1[i, j] / scalar;
+                }
+            }
+            
+            return new Matrix(matrix);
+        }
+        
+        /// <summary>
         /// Subtracts a scalar value from all cell values in a matrix.
         /// </summary>
         public static Matrix operator -(Matrix m1, float scalar)
@@ -218,7 +258,25 @@ namespace EnvueClustering
             
             return new Matrix(matrix);
         }
-        
+
+        public static Matrix operator -(float scalar, Matrix m)
+        {
+            var mScalar = new Matrix(m.Shape[0], m.Shape[1], scalar);
+            
+            var matrix = new Matrix(m.Shape);
+            var rows = m.Shape[0];
+            var columns = m.Shape[1];
+            for (var i = 0; i < rows; i++)
+            {
+                for (var j = 0; j < columns; j++)
+                {
+                    matrix[i, j] = mScalar[i, j] - m[i, j];
+                }
+            }
+
+            return matrix;
+        }
+
         /// <summary>
         /// Adds a scalar value to all cell values in a matrix.
         /// </summary>
@@ -234,6 +292,26 @@ namespace EnvueClustering
             }
             
             return new Matrix(matrix);
+        }
+
+        public static Matrix operator +(Matrix m1, Matrix m2)
+        {
+            if (!m1.Shape.SequenceEqual(m2.Shape))
+                throw new ArgumentException($"Cannot add two matrices of different shapes. " +
+                                            $"Shapes were: {m1.Shape.Pretty()} and {m2.Shape.Pretty()}");
+            
+            var matrix = new Matrix(m1.Shape);
+            var rows = m1.Shape[0];
+            var columns = m1.Shape[1];
+            for (var i = 0; i < rows; i++)
+            {
+                for (var j = 0; j < columns; j++)
+                {
+                    matrix[i, j] = m1[i, j] + m2[i, j];
+                }
+            }
+
+            return matrix;
         }
 
         /// <summary>
@@ -367,6 +445,77 @@ namespace EnvueClustering
             }
 
             return matrix;
+        }
+
+        public static Matrix Ones(int rows, int columns)
+        {
+            var ones = new float[rows, columns];
+            for (var i = 0; i < rows; i++)
+            {
+                for (var j = 0; j < columns; j++)
+                {
+                    ones[i, j] = 1;
+                }
+            }
+
+            return new Matrix(ones);
+        }
+
+        public static Matrix SimilarityMatrix<T>(
+            IEnumerable<T> data, 
+            Func<T, T, float> similarityFunction, 
+            bool normalize = false, 
+            bool inverse = false)
+        {
+            var arr = data.ToArray();
+            var matrix = new Matrix(arr.Length, arr.Length);
+            for (var i = 0; i < arr.Length; i++)
+            {
+                for (var j = 0; j < i; j++)
+                {
+                    matrix[i, j] = similarityFunction(arr[i], arr[j]);
+                }
+            }
+            
+            matrix = matrix.Square();
+            if (normalize)
+            {
+                matrix = matrix / matrix.Max();
+            }
+
+            if (inverse)
+            {
+                matrix = 1 - matrix;
+            }
+
+            return matrix;
+        }
+
+        /// <summary>
+        /// Mirrors a triangular matrix into a square matrix.
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public Matrix Square()
+        {
+            var mirrored = this.T + this;
+            for (var i = 0; i < Shape[0]; i++)
+            {
+                mirrored[i, i] = this[i, i];
+            }
+
+            return mirrored;
+        }
+
+        /// <summary>
+        /// Returns the largest value in the matrix.
+        /// </summary>
+        /// <returns></returns>
+        public float Max()
+        {
+            return this
+                .Select(row => row.Max())
+                .Max();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Xml.Linq;
@@ -57,12 +58,39 @@ namespace EnvueClustering
             
             var denStream = new DenStream<EuclideanPoint>();
             denStream.MaintainClusterMap(dataStream, simFunc);
+            
+            var pcmcLines = new List<string>();
+            var ocmcLines = new List<string>();
+            var pcmcPointLines = new List<string>();
+            var ocmcPointLines = new List<string>();
 
             foreach (var pcmc in denStream.PotentialCoreMicroClusters)
             {
                 var _pcmc = pcmc as CoreMicroCluster<EuclideanPoint>;
-                Console.WriteLine($"{_pcmc.Center(denStream.CurrentTime).X} {_pcmc.Center(denStream.CurrentTime).Y} {_pcmc.Radius(denStream.CurrentTime)}");
+                pcmcLines.Add($"{_pcmc.Center(denStream.CurrentTime).X} {_pcmc.Center(denStream.CurrentTime).Y} {_pcmc.Radius(denStream.CurrentTime)}");
             }
+            
+            foreach (var ocmc in denStream.OutlierCoreMicroClusters)
+            {                
+                var _ocmc = ocmc as CoreMicroCluster<EuclideanPoint>;
+                ocmcLines.Add($"{_ocmc.Center(denStream.CurrentTime).X} {_ocmc.Center(denStream.CurrentTime).Y} {_ocmc.Radius(denStream.CurrentTime)}");
+            }
+
+            foreach (var pcmc in denStream.PotentialCoreMicroClusters)
+            {
+                pcmc.Points.ForEach(p => pcmcPointLines.Add($"{p.X} {p.Y} 2"));
+            }
+            
+            foreach (var ocmc in denStream.OutlierCoreMicroClusters)
+            {
+                ocmc.Points.ForEach(p => ocmcPointLines.Add($"{p.X} {p.Y} 2"));
+            }
+
+            File.WriteAllLines("Data/Synthesis/ClusterVisualization/pcmc", pcmcLines);
+            File.WriteAllLines("Data/Synthesis/ClusterVisualization/ocmc", ocmcLines);
+            File.WriteAllLines("Data/Synthesis/ClusterVisualization/pcmcPoints", pcmcPointLines);
+            File.WriteAllLines("Data/Synthesis/ClusterVisualization/ocmcPoints", ocmcPointLines);
+            Console.WriteLine($"Done.");
         }
     }
 }

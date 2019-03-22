@@ -69,6 +69,6 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         public int CreationTime => Points
             .Select(p => p.TimeStamp)
-            .ToImmutableSortedSet().First();
+            .ToImmutableSortedSet().First();        
     }
 }

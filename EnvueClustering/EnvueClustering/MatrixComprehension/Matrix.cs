@@ -128,6 +128,17 @@ namespace EnvueClustering
 
                 return row;
             }
+
+            set
+            {
+                foreach (var v in value)
+                {
+                    for (var j = 0; j < _columns; j++)
+                    {
+                        _m[i, j] = v;
+                    }
+                }
+            }
         }
         
         /// <summary>
@@ -220,6 +231,11 @@ namespace EnvueClustering
             }
             
             return new Matrix(matrix);
+        }
+        
+        public static Matrix operator *(float scalar, Matrix m1)
+        {
+            return m1 * scalar;
         }
         
         /// <summary>

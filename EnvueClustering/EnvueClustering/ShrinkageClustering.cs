@@ -75,9 +75,8 @@ namespace EnvueClustering
                 
                 // Reassign X to the cluster C where C = argmin(M[X][j]) w.r.t. j
                 var C = M[X].ArgMin();
-                A[X] = _k.Range().Select(_ => 0f).ToArray();
+                A[X] = 0f.Repeat(_k).ToArray();
                 A[X][C] = 1;
-
             }
 
             return A;

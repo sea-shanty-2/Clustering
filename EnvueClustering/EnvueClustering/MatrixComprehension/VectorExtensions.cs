@@ -147,6 +147,16 @@ namespace EnvueClustering
         {
             return Enumerable.Range(start, max - 1);
         }
+        
+        /// <summary>
+        /// Returns an enumerable of integers with the same value.
+        /// </summary>
+        /// <param name="value">The values of the enumerable.</param>
+        /// <param name="length">The length of the enumerable.</param>
+        public static IEnumerable<T> Repeat<T>(this T value, int length)
+        {
+            return length.Range().Select(_ => value);
+        }
 
         /// <summary>
         /// Converts a collection [v0, v1, ... vn] into a list of pairs

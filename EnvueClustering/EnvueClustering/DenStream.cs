@@ -13,7 +13,7 @@ namespace EnvueClustering
 {
     public class DenStream<T> : IClusterable<T> where T : ITransformable<T>
     {
-        public const float LAMBDA = .01f; // Weight fading coefficient - the higher the value, the faster the fade
+        public const float LAMBDA = .01f;  // Weight fading coefficient - the higher the value, the faster the fade
         public const float EPSILON = 30f;  // Minimum number of points in a core-micro-cluster
         public const float BETA = 1.2f;    // Indicator for threshold between potential- and outlier MCs
         public const float MU = 6f;        // Minimum overall weight of a micro-cluster
@@ -109,9 +109,6 @@ namespace EnvueClustering
                 // Try to insert considering the new radius
                 successfulInsert = TryInsert(p, cluster, 
                     newCluster => newCluster.Radius(time) <= EPSILON);
-                
-//                if (successfulInsert)
-//                    Console.WriteLine($"Inserted into PCMC with radius {cluster.Radius(time)}");
             }
 
             if (!successfulInsert && _ocmcs.Count() != 0)
@@ -139,7 +136,6 @@ namespace EnvueClustering
                         _pcmcs.Add(new PotentialCoreMicroCluster<T>(
                             cluster.Points, 
                             similarityFunction));
-                        //Console.WriteLine($"Inserted into OCMC --> PCMC with radius {cluster.Radius(time)}");
                     }
                 }
             }

@@ -52,15 +52,15 @@ namespace EnvueClustering.ClusteringBase
         /// </summary>
         /// <param name="time"></param>
         /// <returns></returns>
-//        public override float Radius(int time)
-//        {
-//            var w = Weight(time);
-//            var c1 = CF2(time).Size() / w;
-//            var c2 = Math.Pow(CF1(time).Size() / w, 2);
-//            var radius = (float)Math.Sqrt(Math.Abs(c1 - c2));
-//
-//            return radius;
-//        }
+        public override float Radius(int time)
+        {
+            var w = Weight(time);
+            var c1 = CF2(time).Size() / w;
+            var c2 = Math.Pow(CF1(time).Size() / w, 2);
+            var radius = (float)Math.Sqrt(Math.Abs(c1 - c2));
+
+            return radius;
+        }
 
         /// <summary>
         /// The creation time of the OCMC defined as the earliest time stamp in

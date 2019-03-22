@@ -23,7 +23,17 @@ namespace EnvueClustering
 
         public T[][] Cluster(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
         {
-            return null;
+            var dataArr = dataStream.ToArray();
+            var assignmentMatrix = ShrinkClusters(dataArr, similarityFunction);
+            var clusters = new List<T>[assignmentMatrix.Columns.Count()];
+
+            foreach (var (i, val) in dataArr.Enumerate())
+            {
+                var clusterIndex = assignmentMatrix[i].ArgMax();
+                clusters[clusterIndex].Add(val);
+            }
+
+            return clusters.Select(cluster => cluster.ToArray()).ToArray();
         }
 
         /// <summary>
@@ -80,11 +90,6 @@ namespace EnvueClustering
             }
 
             return A;
-        }
-
-        private Matrix SimilarityMatrix(IEnumerable<T> data, Func<T, T, float> similarityFunction)
-        {
-            return null;
         }
     }
 }

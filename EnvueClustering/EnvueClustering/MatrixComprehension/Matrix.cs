@@ -349,5 +349,24 @@ namespace EnvueClustering
         {
             return GetEnumerator();
         }
+
+        /// <summary>
+        /// Returns a matrix where each row has one random cell set to 1, otherwise 0. 
+        /// </summary>
+        /// <param name="rows">The number of rows.</param>
+        /// <param name="columns">The number of columns.</param>
+        /// <returns></returns>
+        public static Matrix RandomAssignmentMatrix(int rows, int columns)
+        {
+            var matrix = new Matrix(rows, columns);
+            var r = new Random();
+            for (var i = 0; i < rows; i++)
+            {
+                var j = r.Next(columns);
+                matrix[i, j] = 1;
+            }
+
+            return matrix;
+        }
     }
 }

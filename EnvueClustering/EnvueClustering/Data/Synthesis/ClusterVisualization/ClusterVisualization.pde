@@ -14,7 +14,7 @@ void setup() {
   // points.add(new Point(300, 350, 5));
   // points.add(new Point(350, 300, 5));
 
-  readRawPoints("data.synthetic", points);
+  readRawPoints("data.synthetic.json", points);
   readPoints("ocmcs.json", ocmcs);
   readPoints("ocmcPoints.json", ocmcPoints);
   readPoints("pcmcs.json", pcmcs);

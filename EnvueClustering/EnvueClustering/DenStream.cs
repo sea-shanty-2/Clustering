@@ -24,11 +24,14 @@ namespace EnvueClustering
         private readonly List<OutlierCoreMicroCluster<T>> _ocmcs;
 
         private IClusterable<CoreMicroCluster<T>> _dbscan;
+
+        private readonly Func<T, T, float> SimFunc;
         
-        public DenStream()
+        public DenStream(Func<T, T, float> similarityFunction)
         {
             _pcmcs = new List<PotentialCoreMicroCluster<T>>();
             _ocmcs = new List<OutlierCoreMicroCluster<T>>();
+            SimFunc = similarityFunction;
         }
 
         /// <summary>
@@ -42,8 +45,7 @@ namespace EnvueClustering
         }
 
         public void MaintainClusterMap(
-            IEnumerable<T> dataStream, 
-            Func<T, T, float> similarityFunction)
+            IEnumerable<(T, int)> dataStream)
         {
             // TODO: Make a new class inheriting from Stream so we can add to the data stream while the function runs
             // For now, we will use a concurrent queue.
@@ -63,7 +65,7 @@ namespace EnvueClustering
                 CurrentTime = p.TimeStamp;
                 
                 // Merge p into the cluster map
-                Merge(p, similarityFunction);
+                Merge(p, t, SimFunc);
                 
                 if (CurrentTime % checkInterval != 0) continue;
                 
@@ -79,7 +81,7 @@ namespace EnvueClustering
             }
         }
 
-        public T[][] Cluster(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
+        public T[][] Cluster(IEnumerable<T> dataStream)
         {
             // Apply DBSCAN to PCMC.
             throw new NotImplementedException(_dbscan.ToString());

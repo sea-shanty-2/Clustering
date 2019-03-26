@@ -9,8 +9,7 @@ namespace EnvueClustering.ClusteringBase
         /// Clusters a stream of data points. 
         /// </summary>
         /// <param name="dataStream">A stream of data points paired with a timestamp.</param>
-        /// <param name="similarityFunction"></param>
         /// <returns></returns>
-        T[][] Cluster(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction);
+        T[][] Cluster(IEnumerable<T> dataStream);
     }
 }

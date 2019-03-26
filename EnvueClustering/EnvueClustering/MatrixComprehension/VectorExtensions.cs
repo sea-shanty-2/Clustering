@@ -67,6 +67,11 @@ namespace EnvueClustering
         /// <returns></returns>
         public static IEnumerable<T> Divide<T>(this IEnumerable<T> vector, float scalar) where T : ITransformable<T>
         {
+            if (scalar == 0)
+            {
+                throw new ArgumentException("Cannot divide a vector by 0.");
+            }
+
             return vector.Select(value => value.Divide(scalar));
         }
         
@@ -78,6 +83,10 @@ namespace EnvueClustering
         /// <returns></returns>
         public static IEnumerable<float> Divide(this IEnumerable<float> vector, float scalar)
         {
+            if (scalar == 0)
+            {
+                throw new ArgumentException("Cannot divide a vector by 0.");
+            }
             return vector.Select(value => value / scalar);
         }
 
@@ -119,6 +128,7 @@ namespace EnvueClustering
         
         /// <summary>
         /// Returns a slice (or sub-array) from a vector.
+        /// If the slice exceeds the length of the vector, returns the remaining values.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="index">The index from which the slice will start.</param>
@@ -127,11 +137,11 @@ namespace EnvueClustering
         /// <returns></returns>
         public static T[] Slice<T>(this T[] source, int index, int length)
         {       
-            var slice = new T[length];
             if (index + length > source.Length)
             {
                 length = source.Length - index;
             }
+            var slice = new T[length];
 
             Array.Copy(source, index, slice, 0, length);
             return slice;
@@ -178,7 +188,13 @@ namespace EnvueClustering
         /// <returns></returns>
         public static int ArgMin(this IEnumerable<float> source)
         {
-            var sorted = source.Enumerate().ToList();
+            var arr = source.ToArray();
+            if (arr.Length == 0)
+            {
+                throw new ArgumentException("Cannot find the ArgMin of an empty list.");
+            }
+
+            var sorted = arr.Enumerate().ToList();
             sorted.Sort((p1, p2) =>
             {
                 var (i1, v1) = p1;
@@ -197,7 +213,14 @@ namespace EnvueClustering
         /// <returns></returns>
         public static int ArgMax(this IEnumerable<float> source)
         {
-            var sorted = source.Enumerate().ToList();
+            var arr = source.ToArray();
+
+            if (arr.Length == 0)
+            {
+                throw new ArgumentException("Cannot find the ArgMax of an empty list.");
+            }
+
+            var sorted = arr.Enumerate().ToList();
             sorted.Sort((p1, p2) =>
             {
                 var (i1, v1) = p1;

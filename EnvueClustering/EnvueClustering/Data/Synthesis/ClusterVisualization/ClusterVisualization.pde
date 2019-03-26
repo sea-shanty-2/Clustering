@@ -14,11 +14,11 @@ void setup() {
   // points.add(new Point(300, 350, 5));
   // points.add(new Point(350, 300, 5));
 
-  readPoints("data.synthetic", points);
-  readClusters("ocmc", ocmcs);
-  readClusters("ocmcPoints", ocmcPoints);
-  readClusters("pcmc", pcmcs);
-  readClusters("pcmcPoints", pcmcPoints);
+  readRawPoints("data.synthetic", points);
+  readPoints("ocmcs.json", ocmcs);
+  readPoints("ocmcPoints.json", ocmcPoints);
+  readPoints("pcmcs.json", pcmcs);
+  readPoints("pcmcPoints.json", pcmcPoints);
   noStroke();
   fill(150, 150, 150);
   for (int i = 0; i < points.size(); i++) {
@@ -48,31 +48,22 @@ void setup() {
   }
 }
 
-
-int readPoints(String filename, ArrayList<Point> toAdd) {
-  String[] lines = loadStrings(filename); 
-  for (int i = 0; i < lines.length; i++) {
-    String[] attrs = split(lines[i], ' ');
-    float x = float(attrs[0]);
-    float y = float(attrs[1]);
-    toAdd.add(new Point(x, y, 2));
+int readRawPoints (String filename, ArrayList<Point> toAdd) {
+  JSONArray values = loadJSONArray(filename);
+  for (int i = 0; i < values.size(); i++) {
+    JSONObject jp = values.getJSONObject(i);
+    toAdd.add(new Point(jp.getFloat("x"), jp.getFloat("y"), 2));
   }
-  
-  return lines.length;
+  return values.size();
 }
 
-
-int readClusters(String fileName, ArrayList<Point> toAdd) {
-  String[] lines = loadStrings(fileName);
-  for (int i = 0; i < lines.length; i++) {
-    String[] attrs = split(lines[i], ' ');
-    float x = float(attrs[0]);
-    float y = float(attrs[1]);
-    float r = float(attrs[2]);
-    toAdd.add(new Point(x, y, r));
+int readPoints(String filename, ArrayList<Point> toAdd) {
+  JSONArray values = loadJSONArray(filename);
+  for (int i = 0; i < values.size(); i++) {
+    JSONObject jp = values.getJSONObject(i);
+    toAdd.add(new Point(jp.getFloat("X"), jp.getFloat("Y"), jp.getFloat("Radius")));
   }
-  
-  return lines.length;
+  return values.size();
 }
 
 class Point {

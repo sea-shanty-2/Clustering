@@ -5,6 +5,7 @@ namespace EnvueClustering.Data
 {
     public class EuclideanPoint : ITransformable<EuclideanPoint>
     {
+        public float Radius { get; set; }
         public int TimeStamp { get; set; }
 
         public float X { get; }
@@ -51,6 +52,11 @@ namespace EnvueClustering.Data
         public float Size()
         {
             return new[] {X, Y}.EuclideanLength();
+        }
+
+        public void SetRadius(float val)
+        {
+            Radius = val;
         }
 
         public override string ToString()

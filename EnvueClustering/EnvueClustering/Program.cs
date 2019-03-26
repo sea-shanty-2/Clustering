@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
+using Newtonsoft.Json;
 using EnvueClustering.DBSCAN;
 
 namespace EnvueClustering
@@ -52,7 +52,33 @@ namespace EnvueClustering
         static void DbScanSyntheticTest()
         {
             const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic";
-            ConcurrentQueue<(EuclideanPoint, int)> dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+            
+            Func<EuclideanPoint, EuclideanPoint, float> denSimFunc = (x, y) => 
+                (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
+            Func<CoreMicroCluster<EuclideanPoint>, CoreMicroCluster<EuclideanPoint>, float> dbSimFunc = (x, y) =>
+                (float) Math.Sqrt(
+                    Math.Pow(x.Center(x.Points[x.Points.Count].TimeStamp).X - y.Center(y.Points[y.Points.Count].TimeStamp).X, 2) +
+                    Math.Pow(x.Center(x.Points[x.Points.Count].TimeStamp).Y - y.Center(y.Points[y.Points.Count].TimeStamp).Y, 2));
+            
+            var denStream = new DenStream<EuclideanPoint>(denSimFunc);
+            denStream.MaintainClusterMap(dataStream);
+            var inputStream = new List<CoreMicroCluster<EuclideanPoint>>(denStream.PotentialCoreMicroClusters);
+            
+            var dbScan = new DbScan<CoreMicroCluster<EuclideanPoint>>(2, 3, dbSimFunc);
+            CoreMicroCluster<EuclideanPoint>[][] clusters = dbScan.Cluster(inputStream);
+            
+            for (int i = 0; i < clusters.Length; i++)
+            {
+                foreach (var microCluster in clusters[i])
+                {
+                    foreach (var point in microCluster.Points)
+                    {
+                        Console.WriteLine($"{point.X} {point.Y} {i}");
+                    }
+                }
+            }
+        }
 
             DenStream<EuclideanPoint> denStream = new DenStream<EuclideanPoint>();
             
@@ -89,41 +115,58 @@ namespace EnvueClustering
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
                 (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
             
-            var denStream = new DenStream<EuclideanPoint>();
-            denStream.MaintainClusterMap(dataStream, simFunc);
+            var denStream = new DenStream<EuclideanPoint>(simFunc);
+            denStream.MaintainClusterMap(dataStream);
             
-            var pcmcLines = new List<string>();
-            var ocmcLines = new List<string>();
-            var pcmcPointLines = new List<string>();
-            var ocmcPointLines = new List<string>();
+            var pcmcs = new List<EuclideanPoint>();
+            var ocmcs = new List<EuclideanPoint>();
+            var pcmcPoints = new List<EuclideanPoint>();
+            var ocmcPoints = new List<EuclideanPoint>();
 
             foreach (var pcmc in denStream.PotentialCoreMicroClusters)
             {
                 var _pcmc = pcmc as CoreMicroCluster<EuclideanPoint>;
-                pcmcLines.Add($"{_pcmc.Center(denStream.CurrentTime).X} {_pcmc.Center(denStream.CurrentTime).Y} {_pcmc.Radius(denStream.CurrentTime)}");
+                var p = new EuclideanPoint(_pcmc.Center(denStream.CurrentTime).X, _pcmc.Center(denStream.CurrentTime).Y,
+                    (int) _pcmc.Radius(denStream.CurrentTime));
+                p.SetRadius(_pcmc.Radius(denStream.CurrentTime));
+                pcmcs.Add(p);
             }
             
             foreach (var ocmc in denStream.OutlierCoreMicroClusters)
             {                
                 var _ocmc = ocmc as CoreMicroCluster<EuclideanPoint>;
-                ocmcLines.Add($"{_ocmc.Center(denStream.CurrentTime).X} {_ocmc.Center(denStream.CurrentTime).Y} {_ocmc.Radius(denStream.CurrentTime)}");
+                var p = new EuclideanPoint(_ocmc.Center(denStream.CurrentTime).X, _ocmc.Center(denStream.CurrentTime).Y,
+                    (int) _ocmc.Radius(denStream.CurrentTime));
+                p.SetRadius(_ocmc.Radius(denStream.CurrentTime));
+                ocmcs.Add(p);
             }
 
             foreach (var pcmc in denStream.PotentialCoreMicroClusters)
             {
-                pcmc.Points.ForEach(p => pcmcPointLines.Add($"{p.X} {p.Y} 2"));
+                pcmc.Points.ForEach(p =>
+                {
+                    var ep = new EuclideanPoint(p.X, p.Y, 2);
+                    ep.SetRadius(2);
+                    pcmcPoints.Add(ep);
+                });
             }
             
             foreach (var ocmc in denStream.OutlierCoreMicroClusters)
             {
-                ocmc.Points.ForEach(p => ocmcPointLines.Add($"{p.X} {p.Y} 2"));
+                ocmc.Points.ForEach(p =>
+                {
+                    var ep = new EuclideanPoint(p.X, p.Y, 2);
+                    ep.SetRadius(2);
+                    ocmcPoints.Add(ep);
+                });
             }
 
-            File.WriteAllLines("Data/Synthesis/ClusterVisualization/pcmc", pcmcLines);
-            File.WriteAllLines("Data/Synthesis/ClusterVisualization/ocmc", ocmcLines);
-            File.WriteAllLines("Data/Synthesis/ClusterVisualization/pcmcPoints", pcmcPointLines);
-            File.WriteAllLines("Data/Synthesis/ClusterVisualization/ocmcPoints", ocmcPointLines);
-            Console.WriteLine($"Done.");
+            File.WriteAllText("Data/Synthesis/ClusterVisualization/pcmcs.json", JsonConvert.SerializeObject(pcmcs));
+            File.WriteAllText("Data/Synthesis/ClusterVisualization/ocmcs.json", JsonConvert.SerializeObject(ocmcs));
+            File.WriteAllText("Data/Synthesis/ClusterVisualization/pcmcPoints.json", JsonConvert.SerializeObject(pcmcPoints));
+            File.WriteAllText("Data/Synthesis/ClusterVisualization/ocmcPoints.json", JsonConvert.SerializeObject(ocmcPoints));
+
+            Console.WriteLine($"Wrote {pcmcs.Count} PCMCs and {ocmcs.Count} OCMCs to disk.");
         }
     }
 }

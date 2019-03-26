@@ -11,21 +11,24 @@ namespace EnvueClustering
         private int _k;
         private readonly int _maxIterations;
         
+        private readonly Func<T, T, float> SimFunc;
+        
         /// <summary>
         /// Initializes a shrinkage clustering algorithm. 
         /// </summary>
         /// <param name="k">The initial number of clusters. This number will be reduced to the optimal number of clusters.</param>
         /// <param name="maxIterations">The maximum number of iterations before the algorithm terminates.</param>
-        public ShrinkageClustering(int k, int maxIterations)
+        public ShrinkageClustering(int k, int maxIterations, Func<T, T, float> similarityFunction)
         {
             _k = k;
             _maxIterations = maxIterations;
+            SimFunc = similarityFunction;
         }
 
-        public T[][] Cluster(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
+        public T[][] Cluster(IEnumerable<T> dataStream)
         {
             var dataArr = dataStream.ToArray();
-            var assignmentMatrix = ShrinkClusters(dataArr, similarityFunction);
+            var assignmentMatrix = ShrinkClusters(dataArr, SimFunc);
             var clusters = new List<T>[assignmentMatrix.Columns.Count()];
 
             foreach (var (i, val) in dataArr.Enumerate())

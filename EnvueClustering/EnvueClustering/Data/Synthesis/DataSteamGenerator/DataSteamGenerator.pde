@@ -29,14 +29,17 @@ void spawnPoints() {
 }
 
 void saveData() {
-  PrintWriter output = createWriter("data.synthetic");
+  JSONArray arr = new JSONArray();
   for (int i = 0; i < points.size(); i++) {
-    Point p = points.get(i);
-    output.println(p.x + " " + p.y + " " + p.spawnTime);
+    JSONObject p = new JSONObject();
+    Point rp = points.get(i);
+    p.setFloat("x", rp.x);
+    p.setFloat("y", rp.y);
+    p.setFloat("timeStamp", rp.spawnTime);
+    arr.setJSONObject(i, p);
   }
-  
-  output.flush();
-  output.close();
+
+  saveJSONArray(arr, "data.synthetic");
 }
 
 void keyPressed() {

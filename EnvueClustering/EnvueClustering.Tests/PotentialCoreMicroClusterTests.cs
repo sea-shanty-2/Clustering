@@ -77,5 +77,16 @@ namespace EnvueClustering.Tests
             var c2 = new PotentialCoreMicroCluster<EuclideanPoint>(_singletonCluster500, _simFunc);
             Assert.That(c1.Radius(_currentTime), Is.EqualTo(c2.Radius(_currentTime)));
         }
+
+        [Test]
+        public void Weight_ResetTimestampOfExistingPoint_IncreasedWeight()
+        {
+            var pcmc = new PotentialCoreMicroCluster<EuclideanPoint>(_singletonClusterZero, _simFunc);
+            _currentTime += 5;
+            var wOld = pcmc.Weight(_currentTime);
+            _pZero.TimeStamp = _currentTime;  // Update timestamp to simulate reinsertion in data stream
+            var wNew = pcmc.Weight(_currentTime);
+            Assert.That(wNew, Is.GreaterThan(wOld));
+        }
     }
 }

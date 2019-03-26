@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -176,9 +175,9 @@ namespace EnvueClustering
         /// <returns></returns>
         public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T> source)
         {
-            var enumerable = source as T[] ?? source.ToArray();  // So we don't enumerate several times.
-            var length = enumerable.Length;
-            return enumerable.Zip(length.Range(), (val, i) => (i, val));
+            var arr = source as T[] ?? source.ToArray();  // So we don't enumerate several times.
+            var length = arr.Length;
+            return length.Range().Zip(arr);
         }
 
         /// <summary>
@@ -197,12 +196,12 @@ namespace EnvueClustering
             var sorted = arr.Enumerate().ToList();
             sorted.Sort((p1, p2) =>
             {
-                var (i1, v1) = p1;
-                var (i2, v2) = p2;
+                var (_, v1) = p1;
+                var (_, v2) = p2;
                 return v1.CompareTo(v2);
             });
 
-            var (iMin, vMin) = sorted.First();
+            var (iMin, _) = sorted.First();
             return iMin;
         }
         
@@ -223,12 +222,12 @@ namespace EnvueClustering
             var sorted = arr.Enumerate().ToList();
             sorted.Sort((p1, p2) =>
             {
-                var (i1, v1) = p1;
-                var (i2, v2) = p2;
+                var (_, v1) = p1;
+                var (_, v2) = p2;
                 return v1.CompareTo(v2);
             });
 
-            var (iMin, vMin) = sorted.Last();
+            var (iMin, _) = sorted.Last();
             return iMin;
         }
 

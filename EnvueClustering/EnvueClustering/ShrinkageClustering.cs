@@ -10,9 +10,8 @@ namespace EnvueClustering
     {
         private int _k;
         private readonly int _maxIterations;
-        private Func<T, T, float> _similarityFunction;
+        private readonly Func<T, T, float> _similarityFunction;
         
-        private readonly Func<T, T, float> SimFunc;
         
         /// <summary>
         /// Initializes a shrinkage clustering algorithm. 

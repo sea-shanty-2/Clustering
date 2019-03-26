@@ -25,13 +25,13 @@ namespace EnvueClustering
 
         private IClusterable<CoreMicroCluster<T>> _dbscan;
 
-        private readonly Func<T, T, float> SimFunc;
+        private readonly Func<T, T, float> _simFunc;
         
         public DenStream(Func<T, T, float> similarityFunction)
         {
             _pcmcs = new List<PotentialCoreMicroCluster<T>>();
             _ocmcs = new List<OutlierCoreMicroCluster<T>>();
-            SimFunc = similarityFunction;
+            _simFunc = similarityFunction;
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace EnvueClustering
                 CurrentTime = p.TimeStamp;
                 
                 // Merge p into the cluster map
-                Merge(p, SimFunc);
+                Merge(p, _simFunc);
                 
                 if (CurrentTime % checkInterval != 0) continue;
                 

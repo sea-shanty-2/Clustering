@@ -45,7 +45,7 @@ namespace EnvueClustering
         }
 
         public void MaintainClusterMap(
-            IEnumerable<(T, int)> dataStream)
+            IEnumerable<T> dataStream)
         {
             // TODO: Make a new class inheriting from Stream so we can add to the data stream while the function runs
             // For now, we will use a concurrent queue.

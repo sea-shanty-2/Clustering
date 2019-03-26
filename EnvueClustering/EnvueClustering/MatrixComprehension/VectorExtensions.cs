@@ -208,5 +208,10 @@ namespace EnvueClustering
             var (iMin, vMin) = sorted.Last();
             return iMin;
         }
+
+        public static IEnumerable<(TFirst, TSecond)> Zip<TFirst, TSecond>(this IEnumerable<TFirst> source, IEnumerable<TSecond> other)
+        {
+            return source.Zip(other, (first, second) => (first, second));
+        }
     }
 }

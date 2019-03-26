@@ -65,7 +65,7 @@ namespace EnvueClustering
                 CurrentTime = p.TimeStamp;
                 
                 // Merge p into the cluster map
-                Merge(p, t, SimFunc);
+                Merge(p, SimFunc);
                 
                 if (CurrentTime % checkInterval != 0) continue;
                 

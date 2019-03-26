@@ -1,13 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using EnvueClustering.ClusteringBase;
 using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using EnvueClustering.Data;
 
 namespace EnvueClustering
 {
@@ -49,7 +44,6 @@ namespace EnvueClustering
         {
             // TODO: Make a new class inheriting from Stream so we can add to the data stream while the function runs
             // For now, we will use a concurrent queue.
-            var clusters = new List<T[]>();
             var queuedStream = dataStream as ConcurrentQueue<T>;
             var checkInterval = (int) Math.Ceiling((1 / LAMBDA) * Math.Log(
                                                         (BETA * MU) /
@@ -91,7 +85,6 @@ namespace EnvueClustering
         /// Merges a new point p into the cluster map maintained by the DenStream object.
         /// </summary>
         /// <param name="p">The point to insert</param>
-        /// <param name="time">The current time (timestamp of the point)</param>
         /// <param name="similarityFunction">Function to determine the distance between two points.</param>
         private void Merge(T p, Func<T, T, float> similarityFunction)
         {
@@ -106,7 +99,7 @@ namespace EnvueClustering
                     .ToList();
                 
                 clustersWithDistance.Sort((x, y) => x.Item2.CompareTo(y.Item2));
-                var (cluster, distance) = clustersWithDistance.First();
+                var (cluster, _) = clustersWithDistance.First();
                 
                 // Try to insert considering the new radius
                 successfulInsert = TryInsert(p, cluster, 
@@ -121,7 +114,7 @@ namespace EnvueClustering
                     .ToList();
                 
                 clustersWithDistance.Sort((x, y) => x.Item2.CompareTo(y.Item2));
-                var (cluster, distance) = clustersWithDistance.First();
+                var (cluster, _) = clustersWithDistance.First();
                 
                 // Try to insert considering the new radius
                 successfulInsert = TryInsert(p, cluster, 

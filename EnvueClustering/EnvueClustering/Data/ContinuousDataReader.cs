@@ -21,9 +21,7 @@ namespace EnvueClustering.Data
         /// <param name="filePath"></param>
         public static ConcurrentQueue<EuclideanPoint> ReadSyntheticEuclidean(string filePath)
         {
-            var result = new List<EuclideanPoint>();
             var json = JsonConvert.DeserializeObject<IEnumerable<EuclideanPoint>>(File.ReadAllText(filePath));
-
             return new ConcurrentQueue<EuclideanPoint>(json);
         }
     }

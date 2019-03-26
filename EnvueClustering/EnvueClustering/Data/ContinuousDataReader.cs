@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace EnvueClustering.Data
 {
@@ -17,22 +19,12 @@ namespace EnvueClustering.Data
         /// Returns a List((float[], int)). 
         /// </summary>
         /// <param name="filePath"></param>
-        public static ConcurrentQueue<(EuclideanPoint, int)> ReadSyntheticEuclidean(string filePath)
+        public static ConcurrentQueue<EuclideanPoint> ReadSyntheticEuclidean(string filePath)
         {
-            var result = new List<(EuclideanPoint, int)>();
-            foreach (var line in File.ReadLines(filePath))
-            {
-                var attributes = line.Trim().Split();
-                var values = attributes
-                    .Take(attributes.Count() - 1)
-                    .Select(float.Parse)
-                    .ToArray();
-                var timeStamp = int.Parse(attributes.Last());
-                
-                result.Add((new EuclideanPoint(values[0], values[1], timeStamp), timeStamp));
-            }
+            var result = new List<EuclideanPoint>();
+            var json = JsonConvert.DeserializeObject<IEnumerable<EuclideanPoint>>(File.ReadAllText(filePath));
 
-            return new ConcurrentQueue<(EuclideanPoint, int)>(result);
+            return new ConcurrentQueue<EuclideanPoint>(json);
         }
     }
 }

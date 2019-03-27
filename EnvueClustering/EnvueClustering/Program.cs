@@ -52,7 +52,7 @@ namespace EnvueClustering
         private static void DbScanSyntheticTest()
         {
             Console.WriteLine("Performing Synthetic Test for DBSCAN..");
-            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic";
+            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
 
             float DenSimFunc(EuclideanPoint x, EuclideanPoint y) =>
@@ -80,7 +80,7 @@ namespace EnvueClustering
 
         private static void DenStreamSyntheticTest()
         {
-            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic";
+            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
 
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 

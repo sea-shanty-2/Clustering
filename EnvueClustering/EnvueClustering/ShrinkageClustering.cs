@@ -10,25 +10,28 @@ namespace EnvueClustering
     {
         private int _k;
         private readonly int _maxIterations;
+        private readonly Func<T, T, float> _similarityFunction;
         
-        private readonly Func<T, T, float> SimFunc;
         
         /// <summary>
         /// Initializes a shrinkage clustering algorithm. 
         /// </summary>
         /// <param name="k">The initial number of clusters. This number will be reduced to the optimal number of clusters.</param>
         /// <param name="maxIterations">The maximum number of iterations before the algorithm terminates.</param>
+        /// <param name="similarityFunction">Similarity function for points in the data stream.
+        /// Must output 0 if elements are equal, otherwise a positive value.</param>
         public ShrinkageClustering(int k, int maxIterations, Func<T, T, float> similarityFunction)
         {
+            
             _k = k;
             _maxIterations = maxIterations;
-            SimFunc = similarityFunction;
+            _similarityFunction = similarityFunction;
         }
 
         public T[][] Cluster(IEnumerable<T> dataStream)
         {
             var dataArr = dataStream.ToArray();
-            var assignmentMatrix = ShrinkClusters(dataArr, SimFunc);
+            var assignmentMatrix = ShrinkClusters(dataArr);
             var clusters = new List<T>[assignmentMatrix.Columns.Count()];
 
             foreach (var (i, val) in dataArr.Enumerate())
@@ -45,12 +48,10 @@ namespace EnvueClustering
         /// matrix rows, assigns it to a cluster (indexed by the columns).
         /// </summary>
         /// <param name="dataStream">The data stream to cluster.</param>
-        /// <param name="similarityFunction">Similarity function for points in the data stream.
-        /// Must output 0 if elements are equal, otherwise a positive value.</param>
         /// <returns></returns>
-        private Matrix ShrinkClusters(IEnumerable<T> dataStream, Func<T, T, float> similarityFunction)
+        private Matrix ShrinkClusters(IEnumerable<T> dataStream)
         {
-            var S = Matrix.SimilarityMatrix(dataStream, similarityFunction);
+            var S = Matrix.SimilarityMatrix(dataStream, _similarityFunction);
             var SBar = 1 - 2 * S;
             var A = Matrix.RandomAssignmentMatrix(S.Shape[0], _k);
 

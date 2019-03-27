@@ -39,7 +39,7 @@ void saveData() {
     arr.setJSONObject(i, p);
   }
 
-  saveJSONArray(arr, "data.synthetic");
+  saveJSONArray(arr, "data.synthetic.json");
 }
 
 void keyPressed() {

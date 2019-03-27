@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -67,6 +66,11 @@ namespace EnvueClustering
         /// <returns></returns>
         public static IEnumerable<T> Divide<T>(this IEnumerable<T> vector, float scalar) where T : ITransformable<T>
         {
+            if (scalar == 0)
+            {
+                throw new ArgumentException("Cannot divide a vector by 0.");
+            }
+
             return vector.Select(value => value.Divide(scalar));
         }
         
@@ -78,6 +82,10 @@ namespace EnvueClustering
         /// <returns></returns>
         public static IEnumerable<float> Divide(this IEnumerable<float> vector, float scalar)
         {
+            if (scalar == 0)
+            {
+                throw new ArgumentException("Cannot divide a vector by 0.");
+            }
             return vector.Select(value => value / scalar);
         }
 
@@ -119,6 +127,7 @@ namespace EnvueClustering
         
         /// <summary>
         /// Returns a slice (or sub-array) from a vector.
+        /// If the slice exceeds the length of the vector, returns the remaining values.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="index">The index from which the slice will start.</param>
@@ -127,11 +136,11 @@ namespace EnvueClustering
         /// <returns></returns>
         public static T[] Slice<T>(this T[] source, int index, int length)
         {       
-            var slice = new T[length];
             if (index + length > source.Length)
             {
                 length = source.Length - index;
             }
+            var slice = new T[length];
 
             Array.Copy(source, index, slice, 0, length);
             return slice;
@@ -166,9 +175,9 @@ namespace EnvueClustering
         /// <returns></returns>
         public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T> source)
         {
-            var enumerable = source as T[] ?? source.ToArray();  // So we don't enumerate several times.
-            var length = enumerable.Length;
-            return enumerable.Zip(length.Range(), (val, i) => (i, val));
+            var arr = source as T[] ?? source.ToArray();  // So we don't enumerate several times.
+            var length = arr.Length;
+            return length.Range().Zip(arr);
         }
 
         /// <summary>
@@ -178,15 +187,21 @@ namespace EnvueClustering
         /// <returns></returns>
         public static int ArgMin(this IEnumerable<float> source)
         {
-            var sorted = source.Enumerate().ToList();
+            var arr = source.ToArray();
+            if (arr.Length == 0)
+            {
+                throw new ArgumentException("Cannot find the ArgMin of an empty list.");
+            }
+
+            var sorted = arr.Enumerate().ToList();
             sorted.Sort((p1, p2) =>
             {
-                var (i1, v1) = p1;
-                var (i2, v2) = p2;
+                var (_, v1) = p1;
+                var (_, v2) = p2;
                 return v1.CompareTo(v2);
             });
 
-            var (iMin, vMin) = sorted.First();
+            var (iMin, _) = sorted.First();
             return iMin;
         }
         
@@ -197,16 +212,28 @@ namespace EnvueClustering
         /// <returns></returns>
         public static int ArgMax(this IEnumerable<float> source)
         {
-            var sorted = source.Enumerate().ToList();
+            var arr = source.ToArray();
+
+            if (arr.Length == 0)
+            {
+                throw new ArgumentException("Cannot find the ArgMax of an empty list.");
+            }
+
+            var sorted = arr.Enumerate().ToList();
             sorted.Sort((p1, p2) =>
             {
-                var (i1, v1) = p1;
-                var (i2, v2) = p2;
+                var (_, v1) = p1;
+                var (_, v2) = p2;
                 return v1.CompareTo(v2);
             });
 
-            var (iMin, vMin) = sorted.Last();
+            var (iMin, _) = sorted.Last();
             return iMin;
+        }
+
+        public static IEnumerable<(TFirst, TSecond)> Zip<TFirst, TSecond>(this IEnumerable<TFirst> source, IEnumerable<TSecond> other)
+        {
+            return source.Zip(other, (first, second) => (first, second));
         }
     }
 }

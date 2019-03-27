@@ -1,0 +1,11 @@
+version: 2
+jobs:
+  build:
+    docker:
+    - image: microsoft/dotnet:sdk
+    steps:
+    - checkout
+    - run: find .
+    - run: dotnet restore EnvueClustering/EnvueClustering.sln
+    - run: dotnet build EnvueClustering/EnvueClustering.sln
+    - run: dotnet test --no-build EnvueClustering/EnvueClustering.Tests

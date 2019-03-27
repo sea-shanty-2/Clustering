@@ -1,16 +1,31 @@
 ArrayList<Point> points = new ArrayList<Point>();
-color[] colors = new color[] { color(255, 50, 0), color(150, 50, 50), color(0, 50, 255), color(0, 255, 0), color(100, 100, 100), color(255, 0, 255)};
+ArrayList<GreyPoint> greyPoints = new ArrayList<GreyPoint>();
+color[] colors = new color[] { color(255, 50, 0), color(50, 200, 255), color(0, 50, 255), color(0, 255, 0), color(100, 100, 100), color(255, 0, 255)};
 
 void setup() {
   size(600, 600);
   background(255);
-  
+  readGreyPoints("data.synthetic.json", greyPoints);
   readClusterPoints("dbscan.json", points);
+  for (int i = 0; i < greyPoints.size(); i++) {
+    greyPoints.get(i).show();
+  }
+  stroke(0);
   for (int i = 0; i < points.size(); i++) {
     points.get(i).show();
   }
 }
   
+  
+int readGreyPoints(String filename, ArrayList<GreyPoint> toAdd) {
+  JSONArray values = loadJSONArray(filename);
+  for (int i = 0; i < values.size(); i++) {
+    JSONObject jp = values.getJSONObject(i);
+    toAdd.add(new GreyPoint(jp.getFloat("x"), jp.getFloat("y")));
+  }
+  
+  return values.size();
+}
 
 int readClusterPoints (String filename, ArrayList<Point> toAdd) {
   JSONArray values = loadJSONArray(filename);
@@ -21,6 +36,20 @@ int readClusterPoints (String filename, ArrayList<Point> toAdd) {
   return values.size();
 }
 
+class GreyPoint {
+  float x, y;
+  
+  public GreyPoint(float x, float y) {
+    this.x = x;
+    this.y = y;
+  }
+  
+  public void show() {
+    fill(200, 200, 200);
+    noStroke();
+    ellipse(x, y, 4, 4);
+  }
+}
 
 class Point {
   float x, y;

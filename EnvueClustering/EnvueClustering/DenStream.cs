@@ -86,7 +86,7 @@ namespace EnvueClustering
             _dbscan = new DbScan<CoreMicroCluster<T>>(50, 2, CurrentTime, _microClusterSimilarityFunction);
             var pcmcClusters = _dbscan.Cluster(PotentialCoreMicroClusters);
             var clusters = new List<T[]>();
-            
+            Console.WriteLine($"DBSCAN created {pcmcClusters.Count()} PCMC clusters.");
             
             foreach (var pcmcCluster in pcmcClusters)
             {

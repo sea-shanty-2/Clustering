@@ -15,6 +15,7 @@ namespace EnvueClustering
         static void Main(string[] args)
         {
             //PCMCTest();
+            DenStreamSyntheticTest();
             DbScanSynthetictest();
         }
 
@@ -108,7 +109,7 @@ namespace EnvueClustering
             }
 
             var js = JsonConvert.SerializeObject(clusterPoints);
-            File.WriteAllText("Data/Synthesis/ClusterVisualization/dbscan.json", js);
+            File.WriteAllText("Data/Synthesis/ClusterVisualization/dbscanVisu/dbscan.json", js);
         }
 
         static void DenStreamSyntheticTest()

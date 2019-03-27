@@ -59,8 +59,8 @@ namespace EnvueClustering
                 (float) Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
             
             float DbSimFunc(CoreMicroCluster<EuclideanPoint> x, CoreMicroCluster<EuclideanPoint> y) =>
-                (float) Math.Sqrt(Math.Pow(x.Center(x.Points[x.Points.Count].TimeStamp).X - y.Center(y.Points[y.Points.Count].TimeStamp).X, 2) +
-                                  Math.Pow(x.Center(x.Points[x.Points.Count].TimeStamp).Y - y.Center(y.Points[y.Points.Count].TimeStamp).Y, 2));
+                (float) Math.Sqrt(Math.Pow(x.Center(x.Points[x.Points.Count - 1].TimeStamp).X - y.Center(y.Points[y.Points.Count - 1].TimeStamp).X, 2) +
+                                  Math.Pow(x.Center(x.Points[x.Points.Count - 1].TimeStamp).Y - y.Center(y.Points[y.Points.Count - 1].TimeStamp).Y, 2));
 
             var denStream = new DenStream<EuclideanPoint>(DenSimFunc);
             denStream.MaintainClusterMap(dataStream);
@@ -68,7 +68,7 @@ namespace EnvueClustering
 
             Console.WriteLine($"Clustering {inputStream.Count} data points");
             
-            var dbScan = new DbScan<CoreMicroCluster<EuclideanPoint>>(2, 3, DbSimFunc);
+            var dbScan = new DbScan<CoreMicroCluster<EuclideanPoint>>(2, 300, DbSimFunc);
             CoreMicroCluster<EuclideanPoint>[][] clusters = dbScan.Cluster(inputStream);
 
             Console.WriteLine($"Result: {clusters.Length} clusters");

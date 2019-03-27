@@ -93,21 +93,17 @@ namespace EnvueClustering
                 (float) Math.Sqrt(Math.Pow(u.Center(t).X - v.Center(t).X, 2) +
                                   Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
             
-            var denStream = new DenStream<EuclideanPoint>(simFunc);
+            var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
             denStream.MaintainClusterMap(dataStream);
-            
-            var dbscan = new DbScan<PotentialCoreMicroCluster<EuclideanPoint>>(50, 2, denStream.CurrentTime, cmcSimFunc);
-            var clusters = dbscan.Cluster(denStream.PotentialCoreMicroClusters);
+
+            var clusters = denStream.Cluster(new EuclideanPoint[] { });
 
             var clusterPoints = new List<dynamic>();
-            foreach (var (i, pcmcCluster) in clusters.Enumerate())
+            foreach (var (i, cluster) in clusters.Enumerate())
             {
-                foreach (var pcmc in pcmcCluster)
+                foreach (var point in cluster)
                 {
-                    foreach (var p in pcmc.Points)
-                    {
-                        clusterPoints.Add(new { x = p.X, y = p.Y, c = i});
-                    }
+                    clusterPoints.Add(new {x = point.X, y = point.Y, c = i});
                 }
             }
 
@@ -123,7 +119,11 @@ namespace EnvueClustering
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
                 (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
             
-            var denStream = new DenStream<EuclideanPoint>(simFunc);
+            Func<CoreMicroCluster<EuclideanPoint>, CoreMicroCluster<EuclideanPoint>, int, float> cmcSimFunc = (u, v, t) =>
+                (float) Math.Sqrt(Math.Pow(u.Center(t).X - v.Center(t).X, 2) +
+                                  Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
+            
+            var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
             denStream.MaintainClusterMap(dataStream);
             
             var pcmcs = new List<EuclideanPoint>();

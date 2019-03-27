@@ -32,7 +32,6 @@ namespace EnvueClustering
         }
 
         
-
         public T[][] Cluster(IEnumerable<T> dataStream)
         {
             var dataArr = dataStream.ToArray();
@@ -57,8 +56,11 @@ namespace EnvueClustering
 
                     if (neighbours.Length >= _minPts)
                     {
+                        // This is a potential cluster. 
+                        // For every point in this neighbourhood, merge/union *their*
+                        // neighbours.
                         var i = 0;
-                        while (neighbours.Count() > i)
+                        while (neighbours.Length > i)
                         {
                             var neighbour = neighbours[i];
                             if (!visitedPoints.Contains(neighbour))
@@ -72,6 +74,9 @@ namespace EnvueClustering
                             }
                             i++;
                         }
+                        
+                        // We processed all neighbours (also the ones we found along the way). 
+                        // Add this cluster to the final cluster set.
                         clusters.Add(neighbours);
                     }
                 }

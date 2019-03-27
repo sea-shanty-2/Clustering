@@ -21,12 +21,16 @@ namespace EnvueClustering
         private IClusterable<CoreMicroCluster<T>> _dbscan;
 
         private readonly Func<T, T, float> _simFunc;
+        private readonly Func<CoreMicroCluster<T>, CoreMicroCluster<T>, int, float> _microClusterSimilarityFunction;
         
-        public DenStream(Func<T, T, float> similarityFunction)
+        public DenStream(
+            Func<T, T, float> similarityFunction, 
+            Func<CoreMicroCluster<T>, CoreMicroCluster<T>, int, float> microClusterSimilarityFunction)
         {
             _pcmcs = new List<PotentialCoreMicroCluster<T>>();
             _ocmcs = new List<OutlierCoreMicroCluster<T>>();
             _simFunc = similarityFunction;
+            _microClusterSimilarityFunction = microClusterSimilarityFunction;
         }
 
         /// <summary>
@@ -77,8 +81,25 @@ namespace EnvueClustering
 
         public T[][] Cluster(IEnumerable<T> dataStream)
         {
-            // Apply DBSCAN to PCMC.
-            throw new NotImplementedException(_dbscan.ToString());
+            // TODO: Reconsider the structure of the Cluster() methods from the interface. Maybe MaintainClusterMap should be cluster?
+            // TODO: Since this method does not inherently take an input (dataStream), this method call does not fit well.
+            _dbscan = new DbScan<CoreMicroCluster<T>>(50, 2, CurrentTime, _microClusterSimilarityFunction);
+            var pcmcClusters = _dbscan.Cluster(PotentialCoreMicroClusters);
+            var clusters = new List<T[]>();
+            
+            
+            foreach (var pcmcCluster in pcmcClusters)
+            {
+                var cluster = new List<T>();
+                foreach (var pcmc in pcmcCluster)
+                {
+                    cluster.AddRange(pcmc.Points);
+                }
+                
+                clusters.Add(cluster.ToArray());
+            }
+
+            return clusters.ToArray();
         }
 
         /// <summary>

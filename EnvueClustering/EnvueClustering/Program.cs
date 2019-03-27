@@ -73,16 +73,7 @@ namespace EnvueClustering
 
             Console.WriteLine($"Result: {clusters.Length} clusters");
             
-            for (int i = 0; i < clusters.Length; i++)
-            {
-                foreach (var microCluster in clusters[i])
-                {
-                    foreach (var point in microCluster.Points)
-                    {
-                        Console.WriteLine($"{point.X} {point.Y} {i}");
-                    }
-                }
-            }
+            File.WriteAllText("Data/Synthesis/ClusterVisualization/dbscan.json", JsonConvert.SerializeObject(clusters));
 
             Console.WriteLine("Done.");
         }

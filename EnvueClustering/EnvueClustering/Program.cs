@@ -15,7 +15,7 @@ namespace EnvueClustering
         static void Main(string[] args)
         {
             //PCMCTest();
-            DenStreamSyntheticTest();
+            DbScanSynthetictest();
         }
 
         static void PCMCTest()
@@ -80,9 +80,44 @@ namespace EnvueClustering
 //            }
 //        }
 
+        static void DbScanSynthetictest()
+        {
+            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+
+            Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
+                (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
+
+
+            Func<CoreMicroCluster<EuclideanPoint>, CoreMicroCluster<EuclideanPoint>, int, float> cmcSimFunc = (u, v, t) =>
+                (float) Math.Sqrt(Math.Pow(u.Center(t).X - v.Center(t).X, 2) +
+                                  Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
+            
+            var denStream = new DenStream<EuclideanPoint>(simFunc);
+            denStream.MaintainClusterMap(dataStream);
+            
+            var dbscan = new DbScan<PotentialCoreMicroCluster<EuclideanPoint>>(50, 2, denStream.CurrentTime, cmcSimFunc);
+            var clusters = dbscan.Cluster(denStream.PotentialCoreMicroClusters);
+
+            var clusterPoints = new List<dynamic>();
+            foreach (var (i, pcmcCluster) in clusters.Enumerate())
+            {
+                foreach (var pcmc in pcmcCluster)
+                {
+                    foreach (var p in pcmc.Points)
+                    {
+                        clusterPoints.Add(new { x = p.X, y = p.Y, c = i});
+                    }
+                }
+            }
+
+            var js = JsonConvert.SerializeObject(clusterPoints);
+            File.WriteAllText("Data/Synthesis/ClusterVisualization/dbscan.json", js);
+        }
+
         static void DenStreamSyntheticTest()
         {
-            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic";
+            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
 
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 

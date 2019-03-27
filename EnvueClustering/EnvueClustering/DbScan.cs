@@ -1,9 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using EnvueClustering.ClusteringBase;
+using EnvueClustering.Exceptions;
 
 namespace EnvueClustering
 {
@@ -16,9 +15,9 @@ namespace EnvueClustering
         public DbScan(float eps, int minPts, int time, Func<T, T, int, float> similarityFunction)
         {
             if (eps < 0)
-                throw new ArgumentException("Epsilon cannot be less than zero.");
+                throw new EnvueArgumentException("Epsilon cannot be less than zero.");
             if (minPts < 2) 
-                throw new ArgumentException("Minimum number of points in clusters cannot be less than 2.");
+                throw new EnvueArgumentException("Minimum number of points in clusters cannot be less than 2.");
             
             _eps = eps;
             _time = time;
@@ -36,11 +35,11 @@ namespace EnvueClustering
         {
             var dataArr = dataStream.ToArray();
             if (dataArr == null)
-                throw new ArgumentException("Data stream provided was null.");
+                throw new EnvueArgumentException("Data stream provided was null.");
             if (dataArr.Length == 0)
-                throw new ArgumentException("Data stream is empty.");
+                throw new EnvueArgumentException("Data stream is empty.");
             if (dataArr.Count() < 2)
-                throw new ArgumentException("Data stream only contains two elements, i.e. only one cluster.");
+                throw new EnvueArgumentException("Data stream only contains two elements, i.e. only one cluster.");
 
             var visitedPoints = new List<T>();
             var clusters = new List<T[]>();

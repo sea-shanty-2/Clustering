@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Xml.Linq;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
 using Newtonsoft.Json;
+using EnvueClustering.DBSCAN;
 
 namespace EnvueClustering
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //PCMCTest();
-            DenStreamSyntheticTest();
+            //DenStreamSyntheticTest();
+            DbScanSyntheticTest();
         }
 
         static void PCMCTest()
@@ -47,42 +46,41 @@ namespace EnvueClustering
             Console.WriteLine($"Center is {pcmc.Center(500)}");
             Console.WriteLine($"Radius is {pcmc.Radius(500)}");
             Console.WriteLine($"Weight is {pcmc.Weight(500)}");
+            
         }
         
-//        static void DbScanSyntheticTest()
-//        {
-//            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic";
-//            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
-//            
-//            Func<EuclideanPoint, EuclideanPoint, float> denSimFunc = (x, y) => 
-//                (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
-//            Func<CoreMicroCluster<EuclideanPoint>, CoreMicroCluster<EuclideanPoint>, float> dbSimFunc = (x, y) =>
-//                (float) Math.Sqrt(
-//                    Math.Pow(x.Center(x.Points[x.Points.Count].TimeStamp).X - y.Center(y.Points[y.Points.Count].TimeStamp).X, 2) +
-//                    Math.Pow(x.Center(x.Points[x.Points.Count].TimeStamp).Y - y.Center(y.Points[y.Points.Count].TimeStamp).Y, 2));
-//            
-//            var denStream = new DenStream<EuclideanPoint>(denSimFunc);
-//            denStream.MaintainClusterMap(dataStream);
-//            var inputStream = new List<CoreMicroCluster<EuclideanPoint>>(denStream.PotentialCoreMicroClusters);
-//            
-//            var dbScan = new DbScan<CoreMicroCluster<EuclideanPoint>>(2, 3, dbSimFunc);
-//            CoreMicroCluster<EuclideanPoint>[][] clusters = dbScan.Cluster(inputStream);
-//            
-//            for (int i = 0; i < clusters.Length; i++)
-//            {
-//                foreach (var microCluster in clusters[i])
-//                {
-//                    foreach (var point in microCluster.Points)
-//                    {
-//                        Console.WriteLine($"{point.X} {point.Y} {i}");
-//                    }
-//                }
-//            }
-//        }
-
-        static void DenStreamSyntheticTest()
+        private static void DbScanSyntheticTest()
         {
-            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic";
+            Console.WriteLine("Performing Synthetic Test for DBSCAN..");
+            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+
+            float DenSimFunc(EuclideanPoint x, EuclideanPoint y) =>
+                (float) Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
+            
+            float DbSimFunc(CoreMicroCluster<EuclideanPoint> x, CoreMicroCluster<EuclideanPoint> y) =>
+                (float) Math.Sqrt(Math.Pow(x.Center(x.Points[x.Points.Count - 1].TimeStamp).X - y.Center(y.Points[y.Points.Count - 1].TimeStamp).X, 2) +
+                                  Math.Pow(x.Center(x.Points[x.Points.Count - 1].TimeStamp).Y - y.Center(y.Points[y.Points.Count - 1].TimeStamp).Y, 2));
+
+            var denStream = new DenStream<EuclideanPoint>(DenSimFunc);
+            denStream.MaintainClusterMap(dataStream);
+            var inputStream = new List<CoreMicroCluster<EuclideanPoint>>(denStream.PotentialCoreMicroClusters);
+
+            Console.WriteLine($"Clustering {inputStream.Count} data points");
+            
+            var dbScan = new DbScan<CoreMicroCluster<EuclideanPoint>>(2, 300, DbSimFunc);
+            CoreMicroCluster<EuclideanPoint>[][] clusters = dbScan.Cluster(inputStream);
+
+            Console.WriteLine($"Result: {clusters.Length} clusters");
+            
+            File.WriteAllText("Data/Synthesis/ClusterVisualization/dbscan.json", JsonConvert.SerializeObject(clusters));
+
+            Console.WriteLine("Done.");
+        }
+
+        private static void DenStreamSyntheticTest()
+        {
+            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
 
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 

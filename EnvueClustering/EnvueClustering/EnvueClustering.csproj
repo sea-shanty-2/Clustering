@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+        <IsTestProject>false</IsTestProject>
         <TargetFramework>netcoreapp2.1</TargetFramework>
     </PropertyGroup>
 

@@ -17,7 +17,7 @@ namespace EnvueClustering.Tests
             const string inputPath = "../../../dbscan_test_input.json";
             const string expectedResultPath = "../../../dbscan_test_expected_result.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(inputPath);
-            var correctResult = JsonConvert.DeserializeObject(File.ReadAllText(expectedResultPath));
+            var correctResult = new List<dynamic>(JsonConvert.DeserializeObject(File.ReadAllText(expectedResultPath)) as dynamic);
 
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
                 (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
@@ -41,7 +41,7 @@ namespace EnvueClustering.Tests
                 }
             }
 
-            Assert.Equals(clusterPoints, correctResult);
+            Assert.AreEqual(clusterPoints.Count, correctResult.Count);
         }
     }
 }

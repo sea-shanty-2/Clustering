@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
 using EnvueClustering.Exceptions;
@@ -16,7 +13,7 @@ namespace EnvueClustering
     {
         static void Main(string[] args)
         {
-            DenStreamAsyncTest();
+            
         }
 
         private static void DenStreamAsyncTest()

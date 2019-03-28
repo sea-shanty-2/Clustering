@@ -14,8 +14,8 @@ namespace EnvueClustering.Tests
         [Test]
         public void Cluster_SameInputAsSyntheticTest_SameResultAsSyntheticTest()
         {
-            const string inputPath = "dbscan_test_input.json";
-            const string expectedResultPath = "dbscan_test_expected_result.json";
+            const string inputPath = "../../../dbscan_test_input.json";
+            const string expectedResultPath = "../../../dbscan_test_expected_result.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(inputPath);
             var correctResult = JsonConvert.DeserializeObject(File.ReadAllText(expectedResultPath));
 

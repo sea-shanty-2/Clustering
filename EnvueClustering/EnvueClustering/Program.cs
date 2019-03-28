@@ -32,7 +32,7 @@ namespace EnvueClustering
                                   Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
             
             var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
-            denStream.SetDataStream(dataStream);
+            //denStream.SetDataStream(dataStream);
             var terminate = denStream.MaintainClusterMap();
             Thread.Sleep(2000);
             var clusters = denStream.Cluster();

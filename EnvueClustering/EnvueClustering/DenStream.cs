@@ -63,11 +63,17 @@ namespace EnvueClustering
             if (_queuedStream == null)
             {
                 throw new DenStreamUninitializedDataStreamException(
-                    $"The shared data stream resource has not been initialized - aborting MaintainClusterMap.");
+                    $"The shared data stream resource has not been initialized. " +
+                    $"Use the SetDataStream() method to initialize the data stream before calling. " +
+                    $"Aborting MaintainClusterMap...");
             }
             
-            Task.Run(() => MaintainClusterMapAsync());  // Run in background thread
-            return () => { _queuedStream = null; };
+            var maintainClusterMapThread = Task.Run(() => MaintainClusterMapAsync());  // Run in background thread
+            return () =>
+            {
+                _queuedStream = null; 
+                maintainClusterMapThread.Dispose(); 
+            };  // Return an action to force the thread to terminate
         }
 
         private void MaintainClusterMapAsync()

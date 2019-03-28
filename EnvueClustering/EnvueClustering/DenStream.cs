@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EnvueClustering.ClusteringBase;
 using System.Collections.Concurrent;
+using EnvueClustering.Exceptions;
 
 namespace EnvueClustering
 {
@@ -19,6 +21,7 @@ namespace EnvueClustering
         private readonly List<OutlierCoreMicroCluster<T>> _ocmcs;
 
         private IClusterable<CoreMicroCluster<T>> _dbscan;
+        private ConcurrentQueue<T> _queuedStream;
 
         private readonly Func<T, T, float> _simFunc;
         private readonly Func<CoreMicroCluster<T>, CoreMicroCluster<T>, int, float> _microClusterSimilarityFunction;
@@ -43,20 +46,27 @@ namespace EnvueClustering
             return (float)Math.Pow(2, -LAMBDA * t);
         }
 
-        public void MaintainClusterMap(
-            IEnumerable<T> dataStream)
+        public void SetDataStream(IEnumerable<T> dataStream)
         {
-            // TODO: Make a new class inheriting from Stream so we can add to the data stream while the function runs
-            // For now, we will use a concurrent queue.
-            var queuedStream = dataStream as ConcurrentQueue<T>;
+            _queuedStream = new ConcurrentQueue<T>(dataStream);
+        }
+
+        public void MaintainClusterMap()
+        {
+            if (_queuedStream == null)
+            {
+                throw new DenStreamUninitializedDataStreamException(
+                    $"The shared data stream resource has not been initialized - aborting MaintainClusterMap.");
+            }
+
             var checkInterval = (int) Math.Ceiling((1 / LAMBDA) * Math.Log(
                                                         (BETA * MU) /
                                                        ((BETA * MU) - 1)));
 
-            while (queuedStream != null && !queuedStream.IsEmpty)
+            while (_queuedStream != null)  // Allow exit by forcing queued stream to null
             {
                 // Get the next data point in the data stream
-                var successfulDequeue = queuedStream.TryDequeue(out var p);
+                var successfulDequeue = _queuedStream.TryDequeue(out var p);
                 if (!successfulDequeue)
                     continue;
 

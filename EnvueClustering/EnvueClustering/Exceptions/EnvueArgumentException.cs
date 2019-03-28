@@ -6,6 +6,6 @@ namespace EnvueClustering.Exceptions
     {
         public EnvueArgumentException(){}
         public EnvueArgumentException(string message) : base(message){}
-        public EnvueArgumentException(string message, Exception innerException) : base(message, innerException){}
+        public EnvueArgumentException(string message, Exception innerException) : base(message, innerException) { }
     }
 }

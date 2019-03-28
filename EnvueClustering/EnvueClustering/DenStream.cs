@@ -9,9 +9,9 @@ namespace EnvueClustering
     public class DenStream<T> : IClusterable<T> where T : ITransformable<T>
     {
         public const float LAMBDA = .001f;  // Weight fading coefficient - the higher the value, the faster the fade
-        public const float EPSILON = 15f;  // Minimum number of points in a core-micro-cluster
-        public const float BETA = 1.2f;    // Indicator for threshold between potential- and outlier MCs
-        public const float MU = 6f;        // Minimum overall weight of a micro-cluster
+        public const float EPSILON = 15f;   // Minimum number of points in a core-micro-cluster
+        public const float BETA = 1.2f;     // Indicator for threshold between potential- and outlier MCs
+        public const float MU = 6f;         // Minimum overall weight of a micro-cluster
         
         public int CurrentTime;
 

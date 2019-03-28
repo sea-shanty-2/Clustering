@@ -10,10 +10,6 @@ void setup() {
   for (int i = 0; i < greyPoints.size(); i++) {
     greyPoints.get(i).show();
   }
-  stroke(0);
-  for (int i = 0; i < points.size(); i++) {
-    points.get(i).show();
-  }
 }
   
   
@@ -45,8 +41,7 @@ class GreyPoint {
   }
   
   public void show() {
-    fill(200, 200, 200);
-    noStroke();
+    fill(0);
     ellipse(x, y, 4, 4);
   }
 }

@@ -93,7 +93,7 @@ namespace EnvueClustering
             {
                 _userTerminated = true;
                 _queuedStream = null;
-                maintainClusterMapThread.Dispose(); 
+                maintainClusterMapThread.Wait();
             };  // Return an action to force the thread to terminate
         }
 
@@ -105,6 +105,9 @@ namespace EnvueClustering
 
             while (_queuedStream != null)  // Allow exit by forcing queued stream to null
             {
+                if (_userTerminated)
+                    return;
+                
                 // Get the next data point in the data stream
                 var successfulDequeue = _queuedStream.TryDequeue(out var p);
                 if (!successfulDequeue || _clusteringInProgress)

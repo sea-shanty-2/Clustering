@@ -7,7 +7,7 @@ namespace EnvueClusteringAPI.Models
     /// <summary>
     /// Model class for containing information about streamers.
     /// </summary>
-    public class Streamer : ITransformable<Streamer>
+    public class Streamer : IGeospatial, ITransformable<Streamer>
     {
         private int _started;
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using EnvueClustering.Data;
 
 namespace EnvueClustering.ClusteringBase
@@ -19,19 +18,17 @@ namespace EnvueClustering.ClusteringBase
 
         /// <summary>
         /// Returns the distance between the centres of two core micro clusters
-        /// defined for EuclideanPoints.
+        /// defined for data objects implementing both IEuclidean and ITransformable.
         /// </summary>
-        /// <param name="u"></param>
-        /// <param name="v"></param>
-        /// <param name="time"></param>
+        /// <param name="u">First micro cluster.</param>
+        /// <param name="v">Second micro cluster.</param>
+        /// <param name="time">Time at which to evaluate the centres.</param>
+        /// <typeparam name="T">The type of the objects.</typeparam>
         /// <returns></returns>
-        public static float EuclideanCoreMicroClusterDistance(
-            CoreMicroCluster<EuclideanPoint> u,
-            CoreMicroCluster<EuclideanPoint> v,
-            int time)
+        public static float EuclideanDistance<T>(
+            CoreMicroCluster<T> u, CoreMicroCluster<T> v, int time) where T : IEuclidean, ITransformable<T>
         {
-            return (float) Math.Sqrt(Math.Pow(u.Center(time).X - v.Center(time).X, 2) +
-                                     Math.Pow(u.Center(time).Y - v.Center(time).Y, 2));
+            return EuclideanDistance(u.Center(time), v.Center(time));
         }
 
         /// <summary>
@@ -57,7 +54,22 @@ namespace EnvueClustering.ClusteringBase
 
             return (float) (R * c);
         }
-        
+
+        /// <summary>
+        /// Returns the distance (in metres) between the centres of two micro clusters
+        /// defined for data objects that implement both IGeospatial and ITransformable.
+        /// </summary>
+        /// <param name="u">First micro cluster.</param>
+        /// <param name="v">Second micro cluster.</param>
+        /// <param name="time">The time at which to evaluate the centres of the micro clusters.</param>
+        /// <typeparam name="T">The type of the data objects.</typeparam>
+        /// <returns></returns>
+        public static float HaversineDistance<T>(
+            CoreMicroCluster<T> u, CoreMicroCluster<T> v, int time) where T : IGeospatial, ITransformable<T>
+        {
+            return HaversineDistance(u.Center(time), v.Center(time));
+        }
+
         private static double DegreesToRadians(double angle)
         {
             return Math.PI * angle / 180.0;

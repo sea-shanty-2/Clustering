@@ -1,8 +1,8 @@
 namespace EnvueClustering.Exceptions
 {
-    public class DenStreamUninitializedDataStreamException : EnvueException
+    public class DenStreamUninitializedDataStreamException : DenStreamException
     {
-        public DenStreamUninitializedDataStreamException(string message, EnvueException innerException) : base(message,
+        public DenStreamUninitializedDataStreamException(string message, DenStreamException innerException) : base(message,
             innerException)
         {
         }

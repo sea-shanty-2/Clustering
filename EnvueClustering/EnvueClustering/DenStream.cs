@@ -8,7 +8,7 @@ using EnvueClustering.Exceptions;
 
 namespace EnvueClustering
 {
-    public class DenStream<T> : IClusterable<T> where T : ITransformable<T>
+    public class DenStream<T> where T : ITransformable<T>
     {
         public const float LAMBDA = .001f;  // Weight fading coefficient - the higher the value, the faster the fade
         public const float EPSILON = 15f;   // Minimum number of points in a core-micro-cluster
@@ -58,6 +58,13 @@ namespace EnvueClustering
                 throw new DenStreamUninitializedDataStreamException(
                     $"The shared data stream resource has not been initialized - aborting MaintainClusterMap.");
             }
+            
+            MaintainClusterMapAsync();  // Run in background thread
+        }
+
+        private async void MaintainClusterMapAsync()
+        {
+            
 
             var checkInterval = (int) Math.Ceiling((1 / LAMBDA) * Math.Log(
                                                         (BETA * MU) /
@@ -89,7 +96,7 @@ namespace EnvueClustering
             }
         }
 
-        public T[][] Cluster(IEnumerable<T> dataStream)
+        public T[][] Cluster()
         {
             // TODO: Reconsider the structure of the Cluster() methods from the interface. Maybe MaintainClusterMap should be cluster?
             // TODO: Since this method does not inherently take an input (dataStream), this method call does not fit well.

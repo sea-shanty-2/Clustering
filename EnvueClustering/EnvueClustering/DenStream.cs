@@ -41,10 +41,16 @@ namespace EnvueClustering
             Func<T, T, float> similarityFunction, 
             Func<CoreMicroCluster<T>, CoreMicroCluster<T>, int, float> microClusterSimilarityFunction)
         {
-            _pcmcs = new List<PotentialCoreMicroCluster<T>>();
-            _ocmcs = new List<OutlierCoreMicroCluster<T>>();
+            // Similarity functions
             _simFunc = similarityFunction;
             _microClusterSimilarityFunction = microClusterSimilarityFunction;
+
+            // CMC Collections
+            _pcmcs = new List<PotentialCoreMicroCluster<T>>();
+            _ocmcs = new List<OutlierCoreMicroCluster<T>>();
+            
+            // Init data stream
+            _queuedStream = new ConcurrentQueue<T>();
         }
 
         /// <summary>
@@ -56,10 +62,15 @@ namespace EnvueClustering
         {
             return (float)Math.Pow(2, -LAMBDA * t);
         }
-
-        public void SetDataStream(IEnumerable<T> dataStream)
+        
+        /// <summary>
+        /// Adds a range of data points to the shared queue.
+        /// </summary>
+        /// <param name="dataStream"></param>
+        public void AddToDataStream(IEnumerable<T> dataStream)
         {
-            _queuedStream = new ConcurrentQueue<T>(dataStream);
+            foreach (var dataPoint in dataStream)
+                _queuedStream.Enqueue(dataPoint);
         }
 
         /// <summary>

@@ -15,40 +15,7 @@ namespace EnvueClustering
     {
         static void Main(string[] args)
         {
-            // PCMCTest();
-            // DenStreamSyntheticTest();
-            // DbScanSyntheticTest();
-        }
-
-        static void PCMCTest()
-        {
-            var points = new List<EuclideanPoint>()
-            {
-                new EuclideanPoint(250, 300, 1),
-                new EuclideanPoint(300, 250, 1),
-                new EuclideanPoint(300, 350, 1),
-                new EuclideanPoint(350, 300, 1)
-            };
-
-            var pcmc = new PotentialCoreMicroCluster<EuclideanPoint>(
-                points, 
-                (x, y) => 
-                    (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2)));
-
-            Console.WriteLine($"Time 1");
-            Console.WriteLine($"Center is {pcmc.Center(1)}");
-            Console.WriteLine($"Radius is {pcmc.Radius(1)}");
-            Console.WriteLine($"Weight is {pcmc.Weight(1)}");
-            Console.WriteLine();
-            Console.WriteLine($"Time 100");
-            Console.WriteLine($"Center is {pcmc.Center(100)}");
-            Console.WriteLine($"Radius is {pcmc.Radius(100)}");
-            Console.WriteLine($"Weight is {pcmc.Weight(100)}");
-            Console.WriteLine();
-            Console.WriteLine($"Time 500");
-            Console.WriteLine($"Center is {pcmc.Center(500)}");
-            Console.WriteLine($"Radius is {pcmc.Radius(500)}");
-            Console.WriteLine($"Weight is {pcmc.Weight(500)}");
+            
         }
 
         private static void DbScanSyntheticTest()
@@ -65,9 +32,10 @@ namespace EnvueClustering
                                   Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
             
             var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
-            denStream.MaintainClusterMap(dataStream);
+            denStream.SetDataStream(dataStream);
+            denStream.MaintainClusterMap();
 
-            var clusters = denStream.Cluster(new EuclideanPoint[] { });
+            var clusters = denStream.Cluster();
 
             var clusterPoints = new List<dynamic>();
             foreach (var (i, cluster) in clusters.Enumerate())
@@ -95,7 +63,8 @@ namespace EnvueClustering
                                   Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
             
             var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
-            denStream.MaintainClusterMap(dataStream);
+            denStream.SetDataStream(dataStream);
+            denStream.MaintainClusterMap();
             
             var pcmcs = new List<EuclideanPoint>();
             var ocmcs = new List<EuclideanPoint>();

@@ -142,11 +142,15 @@ namespace EnvueClustering.Tests
             Assert.That(actual, Is.Empty);
         }
 
-        [Test]
-        public void Repeat_Repeat5Times10_5Times10()
+        [TestCase(5, 10)]
+        [TestCase(-5, 5)]
+        [TestCase(-5, 1)]
+        [TestCase(5, 0)]
+        [TestCase(0, 1)]
+        public void Repeat_RepeatNTimesK_5Times10(int n, int k)
         {
-            var actual = 5.Repeat(10).ToList();
-            Assert.That(actual, Has.Exactly(10).Items.EqualTo(5));
+            var actual = n.Repeat(k);
+            Assert.That(actual, Has.Exactly(k).Items.EqualTo(n));
         }
 
         [Test]

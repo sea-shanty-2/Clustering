@@ -28,9 +28,10 @@ namespace EnvueClustering.Tests
                                   Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
             
             var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
-            denStream.MaintainClusterMap(dataStream);
+            denStream.SetDataStream(dataStream);
+            denStream.MaintainClusterMap();
 
-            var clusters = denStream.Cluster(new EuclideanPoint[] { });
+            var clusters = denStream.Cluster();
 
             var clusterPoints = new List<dynamic>();
             foreach (var (i, cluster) in clusters.Enumerate())

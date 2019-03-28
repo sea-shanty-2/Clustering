@@ -187,13 +187,17 @@ namespace EnvueClustering.Tests
             Assert.That(m[4, 0], Is.EqualTo(3));
         }
 
-        [Test]
-        public void MatMul_StaticMatrices_ExpectedShape()
+        [TestCase(new [] {3, 6}, new [] {6, 3}, new [] {3, 3})]
+        [TestCase(new [] {1, 6}, new [] {6, 3}, new [] {1, 3})]
+        [TestCase(new [] {1, 1}, new [] {1, 1}, new [] {1, 1})]
+        [TestCase(new [] {19, 2}, new [] {2, 19}, new [] {19, 19})]
+        [TestCase(new [] {3, 6}, new [] {6, 19}, new [] {3, 19})]
+        public void MatMul_StaticMatrices_ExpectedShape(int[] nShape, int[] mShape, int[] expectedShape)
         {
-            var m = new Matrix(3, 5);
-            var n = new Matrix(5, 6);
+            var m = new Matrix(nShape[0], nShape[1]);
+            var n = new Matrix(mShape[0], mShape[1]);
             
-            Assert.That((m * n).Shape, Is.EquivalentTo(new [] {3, 6}));
+            Assert.That((m * n).Shape, Is.EquivalentTo(expectedShape));
         }
     }
 }

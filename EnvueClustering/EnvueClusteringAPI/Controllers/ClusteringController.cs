@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using EnvueClustering;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
@@ -33,8 +35,24 @@ namespace EnvueClusteringAPI.Controllers
         {
             try
             {
-                _denStream.SetDataStream(new EuclideanPoint[] {});
                 _terminateClusterMaintenance = _denStream.MaintainClusterMap();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                if (_env.IsDevelopment())
+                    return BadRequest(e.Message);
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]
+        [Route("add-data-points")]
+        public ActionResult AddDataPoints(IEnumerable<EuclideanPoint> points)
+        {
+            try
+            {
+                _denStream.AddToDataStream(points);
                 return Ok();
             }
             catch (Exception e)

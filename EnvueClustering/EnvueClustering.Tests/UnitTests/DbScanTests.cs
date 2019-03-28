@@ -11,6 +11,6 @@ namespace EnvueClustering.Tests
     [TestFixture]
     public class DbScanTests
     {
-        
+
     }
 }

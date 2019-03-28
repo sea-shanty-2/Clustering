@@ -32,11 +32,13 @@ namespace EnvueClustering
         {
             var dataArr = dataStream.ToArray();
             var assignmentMatrix = ShrinkClusters(dataArr);
-            var clusters = new List<T>[assignmentMatrix.Columns.Count()];
+            var clusters = assignmentMatrix.Columns.Select(c => new List<T>()).ToList();
 
             foreach (var (i, val) in dataArr.Enumerate())
             {
                 var clusterIndex = assignmentMatrix[i].ArgMax();
+                if (clusters[clusterIndex] == null)
+                    clusters[clusterIndex] = new List<T>();
                 clusters[clusterIndex].Add(val);
             }
 

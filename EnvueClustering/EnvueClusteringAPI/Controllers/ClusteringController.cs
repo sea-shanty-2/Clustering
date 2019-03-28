@@ -11,8 +11,8 @@ namespace EnvueClusteringAPI.Controllers
     public class ClusteringController : ControllerBase
     {
         private readonly DenStream<EuclideanPoint> _denStream;
+        private readonly IHostingEnvironment _env;
         private Action _terminateClusterMaintenance;
-        private IHostingEnvironment _env;
         
         public ClusteringController(IHostingEnvironment env)
         {
@@ -28,7 +28,7 @@ namespace EnvueClusteringAPI.Controllers
         }
 
         [HttpGet]
-        [Route("initClusterMaintenance")]
+        [Route("init-clustering-maintenance")]
         public ActionResult InitClustering()
         {
             try
@@ -46,7 +46,7 @@ namespace EnvueClusteringAPI.Controllers
         }
 
         [HttpGet]
-        [Route("terminateClusterMaintenance")]
+        [Route("terminate-clustering-maintenance")]
         public ActionResult TerminateClusterMaintenance()
         {
             try

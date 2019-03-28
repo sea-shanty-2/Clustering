@@ -13,8 +13,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\EnvueClustering\EnvueClustering.csproj" />
-        <Folder Include="..\EnvueClustering\Data\Synthesis\DataSteamGenerator" />
-        <Folder Include="..\EnvueClustering\Data\Synthesis\Unittests" />
     </ItemGroup>
 
 

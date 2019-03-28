@@ -75,7 +75,7 @@ namespace EnvueClustering
             }
 
             var js = JsonConvert.SerializeObject(clusterPoints);
-            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/Unittests/dbscan.json", js);
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/dbscanVisu/dbscan.json", js);
         }
 
         private static void DenStreamSyntheticTest()

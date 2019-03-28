@@ -14,10 +14,10 @@ namespace EnvueClustering.Tests
         [Test]
         public void Cluster_SameInputAsSyntheticTest_SameResultAsSyntheticTest()
         {
-            string filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
-            string correctPath = $"{Environment.CurrentDirectory}/Data/Synthesis/Unittests/dbscan.json";
-            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
-            var correctResult = JsonConvert.DeserializeObject(File.ReadAllText(correctPath));
+            const string inputPath = "dbscan_test_input.json";
+            const string expectedResultPath = "dbscan_test_expected_result.json";
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(inputPath);
+            var correctResult = JsonConvert.DeserializeObject(File.ReadAllText(expectedResultPath));
 
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
                 (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));

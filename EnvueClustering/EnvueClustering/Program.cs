@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Xml.Linq;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
 using Newtonsoft.Json;
@@ -16,7 +13,7 @@ namespace EnvueClustering
         {
             //PCMCTest();
             DenStreamSyntheticTest();
-            DbScanSynthetictest();
+            DbScanSyntheticTest();
         }
 
         static void PCMCTest()
@@ -49,41 +46,10 @@ namespace EnvueClustering
             Console.WriteLine($"Radius is {pcmc.Radius(500)}");
             Console.WriteLine($"Weight is {pcmc.Weight(500)}");
         }
-        
-//        static void DbScanSyntheticTest()
-//        {
-//            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic";
-//            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
-//            
-//            Func<EuclideanPoint, EuclideanPoint, float> denSimFunc = (x, y) => 
-//                (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
-//            Func<CoreMicroCluster<EuclideanPoint>, CoreMicroCluster<EuclideanPoint>, float> dbSimFunc = (x, y) =>
-//                (float) Math.Sqrt(
-//                    Math.Pow(x.Center(x.Points[x.Points.Count].TimeStamp).X - y.Center(y.Points[y.Points.Count].TimeStamp).X, 2) +
-//                    Math.Pow(x.Center(x.Points[x.Points.Count].TimeStamp).Y - y.Center(y.Points[y.Points.Count].TimeStamp).Y, 2));
-//            
-//            var denStream = new DenStream<EuclideanPoint>(denSimFunc);
-//            denStream.MaintainClusterMap(dataStream);
-//            var inputStream = new List<CoreMicroCluster<EuclideanPoint>>(denStream.PotentialCoreMicroClusters);
-//            
-//            var dbScan = new DbScan<CoreMicroCluster<EuclideanPoint>>(2, 3, dbSimFunc);
-//            CoreMicroCluster<EuclideanPoint>[][] clusters = dbScan.Cluster(inputStream);
-//            
-//            for (int i = 0; i < clusters.Length; i++)
-//            {
-//                foreach (var microCluster in clusters[i])
-//                {
-//                    foreach (var point in microCluster.Points)
-//                    {
-//                        Console.WriteLine($"{point.X} {point.Y} {i}");
-//                    }
-//                }
-//            }
-//        }
 
-        static void DbScanSynthetictest()
+        private static void DbScanSyntheticTest()
         {
-            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
 
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
@@ -109,12 +75,12 @@ namespace EnvueClustering
             }
 
             var js = JsonConvert.SerializeObject(clusterPoints);
-            File.WriteAllText("Data/Synthesis/ClusterVisualization/dbscanVisu/dbscan.json", js);
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/Unittests/dbscan.json", js);
         }
 
-        static void DenStreamSyntheticTest()
+        private static void DenStreamSyntheticTest()
         {
-            const string filePath = "Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
 
             Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
@@ -170,10 +136,10 @@ namespace EnvueClustering
                 });
             }
 
-            File.WriteAllText("Data/Synthesis/ClusterVisualization/pcmcs.json", JsonConvert.SerializeObject(pcmcs));
-            File.WriteAllText("Data/Synthesis/ClusterVisualization/ocmcs.json", JsonConvert.SerializeObject(ocmcs));
-            File.WriteAllText("Data/Synthesis/ClusterVisualization/pcmcPoints.json", JsonConvert.SerializeObject(pcmcPoints));
-            File.WriteAllText("Data/Synthesis/ClusterVisualization/ocmcPoints.json", JsonConvert.SerializeObject(ocmcPoints));
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/pcmcs.json", JsonConvert.SerializeObject(pcmcs));
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/ocmcs.json", JsonConvert.SerializeObject(ocmcs));
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/pcmcPoints.json", JsonConvert.SerializeObject(pcmcPoints));
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/ocmcPoints.json", JsonConvert.SerializeObject(ocmcPoints));
 
             Console.WriteLine($"Wrote {pcmcs.Count} PCMCs and {ocmcs.Count} OCMCs to disk.");
         }

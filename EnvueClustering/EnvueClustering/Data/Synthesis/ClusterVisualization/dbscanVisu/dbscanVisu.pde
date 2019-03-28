@@ -6,9 +6,14 @@ void setup() {
   size(600, 600);
   background(255);
   readGreyPoints("data.synthetic.json", greyPoints);
-  readClusterPoints("dbscan.json", points);
+  readClusterPoints("sc.json", points);
+  noStroke();
   for (int i = 0; i < greyPoints.size(); i++) {
     greyPoints.get(i).show();
+  }
+  stroke(0);
+  for (int i = 0; i < points.size(); i++) {
+    points.get(i).show();
   }
 }
   
@@ -41,7 +46,7 @@ class GreyPoint {
   }
   
   public void show() {
-    fill(0);
+    fill(150, 150, 150);
     ellipse(x, y, 4, 4);
   }
 }

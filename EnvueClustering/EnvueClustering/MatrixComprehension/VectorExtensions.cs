@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -234,6 +235,40 @@ namespace EnvueClustering
         public static IEnumerable<(TFirst, TSecond)> Zip<TFirst, TSecond>(this IEnumerable<TFirst> source, IEnumerable<TSecond> other)
         {
             return source.Zip(other, (first, second) => (first, second));
+        }
+
+        /// <summary>
+        /// Flattens a 2-d enumerable to a 1-d enumerable.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> source)
+        {
+            var flattened = new List<T>();
+            foreach (var arr in source)
+            {
+                flattened.AddRange(arr);
+            }
+
+            return flattened;
+        }
+
+        /// <summary>
+        /// Flattens a 3-d enumerable to a 1-d enumerable.
+        /// </summary>
+        /// <param name="source"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<IEnumerable<T>>> source)
+        {
+            var flattened = new List<T>();
+            foreach (var arr2d in source)
+            {
+                flattened.AddRange(arr2d.Flatten());
+            }
+
+            return flattened;
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
+using EnvueClustering.Exceptions;
 using Newtonsoft.Json;
 
 namespace EnvueClustering
@@ -15,7 +16,42 @@ namespace EnvueClustering
     {
         static void Main(string[] args)
         {
-            DbScanSyntheticTest();
+            DenStreamAsyncTest();
+        }
+
+        private static void DenStreamAsyncTest()
+        {
+            var filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+
+            Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
+                (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
+
+
+            Func<CoreMicroCluster<EuclideanPoint>, CoreMicroCluster<EuclideanPoint>, int, float> cmcSimFunc = (u, v, t) =>
+                (float) Math.Sqrt(Math.Pow(u.Center(t).X - v.Center(t).X, 2) +
+                                  Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
+            
+            var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
+            denStream.SetDataStream(dataStream);
+            var terminate = denStream.MaintainClusterMap();
+            foreach (var i in 1000.Range())
+            {
+                try
+                {
+                    Thread.Sleep(5);
+                    var clusters = denStream.Cluster();
+                    Console.WriteLine($"{clusters.Length} clusters.");
+                }
+                catch (EnvueArgumentException e)
+                {
+                    Console.WriteLine($"{i} threw exception.");
+                }
+                
+            }
+            
+            Console.WriteLine($"Terminating MaintainClusterMap");
+            terminate();
         }
 
         private static void DbScanSyntheticTest()

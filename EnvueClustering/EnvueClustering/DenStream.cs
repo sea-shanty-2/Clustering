@@ -11,21 +11,31 @@ namespace EnvueClustering
 {
     public class DenStream<T> where T : ITransformable<T>
     {
+        // Parameter constants
         public const float LAMBDA = .001f;  // Weight fading coefficient - the higher the value, the faster the fade
         public const float EPSILON = 15f;   // Minimum number of points in a core-micro-cluster
         public const float BETA = 1.2f;     // Indicator for threshold between potential- and outlier MCs
         public const float MU = 6f;         // Minimum overall weight of a micro-cluster
         
-        public int CurrentTime;
-
+        // Local CMC collections
         private readonly List<PotentialCoreMicroCluster<T>> _pcmcs;
         private readonly List<OutlierCoreMicroCluster<T>> _ocmcs;
-
-        private IClusterable<CoreMicroCluster<T>> _dbscan;
         private ConcurrentQueue<T> _queuedStream;
 
+        // DBSCAN instance
+        private IClusterable<CoreMicroCluster<T>> _dbscan;
+
+        // Similarity functions
         private readonly Func<T, T, float> _simFunc;
         private readonly Func<CoreMicroCluster<T>, CoreMicroCluster<T>, int, float> _microClusterSimilarityFunction;
+        
+        // Local control variables
+        private bool _userTerminated = false; 
+        private bool _clusteringInProgress = false;
+
+        // Public informational variables
+        public int CurrentTime;
+
         
         public DenStream(
             Func<T, T, float> similarityFunction, 
@@ -63,15 +73,15 @@ namespace EnvueClustering
             if (_queuedStream == null)
             {
                 throw new DenStreamUninitializedDataStreamException(
-                    $"The shared data stream resource has not been initialized. " +
-                    $"Use the SetDataStream() method to initialize the data stream before calling. " +
-                    $"Aborting MaintainClusterMap...");
+                    $"The shared data stream resource has not been initialized.\n " +
+                    $"Use the SetDataStream() method to initialize the data stream before calling.\n ");
             }
             
             var maintainClusterMapThread = Task.Run(() => MaintainClusterMapAsync());  // Run in background thread
             return () =>
             {
-                _queuedStream = null; 
+                _userTerminated = true;
+                _queuedStream = null;
                 maintainClusterMapThread.Dispose(); 
             };  // Return an action to force the thread to terminate
         }
@@ -86,7 +96,7 @@ namespace EnvueClustering
             {
                 // Get the next data point in the data stream
                 var successfulDequeue = _queuedStream.TryDequeue(out var p);
-                if (!successfulDequeue)
+                if (!successfulDequeue || _clusteringInProgress)
                     continue;
 
                 CurrentTime = p.TimeStamp;
@@ -106,14 +116,21 @@ namespace EnvueClustering
                     return ocmc.Weight(CurrentTime) < threshold;
                 });
             }
+
+            if (!_userTerminated)  // The _userTerminated field is only true if the terminating action was called
+            {
+                throw new DenStreamNullReferenceException(
+                    $"Data stream was nullified while the method was running. Aborting MaintainClusterMap...");
+            }
         }
 
         public T[][] Cluster()
         {
+            _clusteringInProgress = true;  // Lock PCMC and OCMC collections
+            
             _dbscan = new DbScan<CoreMicroCluster<T>>(50, 2, CurrentTime, _microClusterSimilarityFunction);
             var pcmcClusters = _dbscan.Cluster(PotentialCoreMicroClusters);
             var clusters = new List<T[]>();
-            Console.WriteLine($"DBSCAN created {pcmcClusters.Count()} PCMC clusters.");
             
             foreach (var pcmcCluster in pcmcClusters)
             {
@@ -126,6 +143,7 @@ namespace EnvueClustering
                 clusters.Add(cluster.ToArray());
             }
 
+            _clusteringInProgress = false;  // Unlock PCMC and OCMC collections
             return clusters.ToArray();
         }
 

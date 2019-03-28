@@ -30,7 +30,7 @@ namespace EnvueClustering
                                   Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
             
             var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
-            denStream.SetDataStream(dataStream);
+            denStream.AddToDataStream(dataStream);
             var terminate = denStream.MaintainClusterMap();
             foreach (var i in 1000.Range())
             {
@@ -98,7 +98,7 @@ namespace EnvueClustering
                                   Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
             
             var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
-            denStream.SetDataStream(dataStream);
+            denStream.AddToDataStream(dataStream);
             denStream.MaintainClusterMap();
             
             var pcmcs = new List<EuclideanPoint>();

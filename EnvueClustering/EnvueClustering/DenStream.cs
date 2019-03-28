@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EnvueClustering.ClusteringBase;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using EnvueClustering.Exceptions;
 
 namespace EnvueClustering
@@ -51,7 +52,13 @@ namespace EnvueClustering
             _queuedStream = new ConcurrentQueue<T>(dataStream);
         }
 
-        public void MaintainClusterMap()
+        /// <summary>
+        /// Launches the MaintainClusterMap algorithm in a background thread.
+        /// </summary>
+        /// <returns>An action that, when called, terminates the thread.</returns>
+        /// <exception cref="DenStreamUninitializedDataStreamException">If the data stream has not been initialized with
+        /// SetDataStream() before calling, this exception is thrown.</exception>
+        public Action MaintainClusterMap()
         {
             if (_queuedStream == null)
             {
@@ -59,13 +66,12 @@ namespace EnvueClustering
                     $"The shared data stream resource has not been initialized - aborting MaintainClusterMap.");
             }
             
-            MaintainClusterMapAsync();  // Run in background thread
+            Task.Run(() => MaintainClusterMapAsync());  // Run in background thread
+            return () => { _queuedStream = null; };
         }
 
-        private async void MaintainClusterMapAsync()
+        private void MaintainClusterMapAsync()
         {
-            
-
             var checkInterval = (int) Math.Ceiling((1 / LAMBDA) * Math.Log(
                                                         (BETA * MU) /
                                                        ((BETA * MU) - 1)));
@@ -98,8 +104,6 @@ namespace EnvueClustering
 
         public T[][] Cluster()
         {
-            // TODO: Reconsider the structure of the Cluster() methods from the interface. Maybe MaintainClusterMap should be cluster?
-            // TODO: Since this method does not inherently take an input (dataStream), this method call does not fit well.
             _dbscan = new DbScan<CoreMicroCluster<T>>(50, 2, CurrentTime, _microClusterSimilarityFunction);
             var pcmcClusters = _dbscan.Cluster(PotentialCoreMicroClusters);
             var clusters = new List<T[]>();

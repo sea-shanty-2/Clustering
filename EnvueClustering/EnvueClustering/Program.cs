@@ -15,7 +15,7 @@ namespace EnvueClustering
     {
         static void Main(string[] args)
         {
-            
+            DbScanSyntheticTest();
         }
 
         private static void DbScanSyntheticTest()
@@ -33,8 +33,8 @@ namespace EnvueClustering
             
             var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
             denStream.SetDataStream(dataStream);
-            denStream.MaintainClusterMap();
-
+            var terminate = denStream.MaintainClusterMap();
+            Thread.Sleep(2000);
             var clusters = denStream.Cluster();
 
             var clusterPoints = new List<dynamic>();
@@ -46,8 +46,10 @@ namespace EnvueClustering
                 }
             }
 
-            var js = JsonConvert.SerializeObject(clusterPoints);
-            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/Unittests/dbscan.json", js);
+            Console.WriteLine($"Waiting...");
+            Thread.Sleep(2000);
+            Console.WriteLine($"Terminating MaintainClusterMap");
+            terminate();
         }
 
         private static void DenStreamSyntheticTest()

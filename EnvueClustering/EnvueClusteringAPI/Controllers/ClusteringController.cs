@@ -108,18 +108,24 @@ namespace EnvueClusteringAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns clusters of Streamer objects that represent event clusters.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("clustering/events")]
         public ActionResult GetClusters()
         {
-            var clusters = _denStream.Cluster();
-
-            foreach (var cluster in clusters)
-            {
-                // Cluster with shrinkage clustering on the stream descriptions
-                var scClusters = _shrinkageClustering.Cluster(cluster);
-                // TODO: Analyze the assignment matrix, assign to a cluster, and add to final cluster set.
-            }
-
-            return Ok(clusters);
+            var eventClusters = new List<Streamer[]>();
+            
+            // Cluster on geographical positions
+            var geoClusters = _denStream.Cluster();
+            
+            // Cluster on the stream descriptions
+            foreach (var geoCluster in geoClusters)
+                eventClusters.AddRange(_shrinkageClustering.Cluster(geoCluster));
+            
+            return Ok(eventClusters);
         }
 
         /// <summary>

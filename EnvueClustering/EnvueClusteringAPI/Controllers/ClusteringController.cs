@@ -6,6 +6,7 @@ using System.Threading;
 using EnvueClustering;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
+using EnvueClusteringAPI.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -18,7 +19,7 @@ namespace EnvueClusteringAPI.Controllers
     [ApiController]
     public class ClusteringController : ControllerBase
     {
-        private readonly DenStream<EuclideanPoint> _denStream;
+        private readonly DenStream<Streamer> _denStream;
         private readonly ShrinkageClustering<float[]> _shrinkageClustering;
         private readonly IHostingEnvironment _env;
         private Action _terminateClusterMaintenance;
@@ -26,9 +27,9 @@ namespace EnvueClusteringAPI.Controllers
         public ClusteringController(IHostingEnvironment env)
         {
             _env = env;
-            _denStream = new DenStream<EuclideanPoint>(
-                Similarity.EuclideanDistance, 
-                Similarity.EuclideanDistance);
+            _denStream = new DenStream<Streamer>(
+                Similarity.HaversineDistance, 
+                Similarity.HaversineDistance);
             _shrinkageClustering = new ShrinkageClustering<float[]>(100, 100, 
                 Similarity.Cosine);
         }
@@ -59,15 +60,15 @@ namespace EnvueClusteringAPI.Controllers
         /// Adds a range of data objects to the data stream being clustering by the clustering module.
         /// Does not require that the micro-cluster maintenance procedure has been initialized.
         /// </summary>
-        /// <param name="points"></param>
+        /// <param name="streamers"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("data/add")]
-        public ActionResult AddDataPoints(IEnumerable<EuclideanPoint> points)
+        public ActionResult AddDataPoints(IEnumerable<Streamer> streamers)
         {
             try
             {
-                _denStream.AddToDataStream(points);
+                _denStream.AddToDataStream(streamers);
                 return Ok();
             }
             catch (Exception e)

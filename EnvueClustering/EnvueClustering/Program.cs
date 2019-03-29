@@ -23,34 +23,16 @@ namespace EnvueClustering
             var filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
             var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
 
-            Func<EuclideanPoint, EuclideanPoint, float> simFunc = (x, y) => 
-                (float)Math.Sqrt(Math.Pow(x.X - y.X, 2) + Math.Pow(x.Y - y.Y, 2));
-
-
-            Func<CoreMicroCluster<EuclideanPoint>, CoreMicroCluster<EuclideanPoint>, int, float> cmcSimFunc = (u, v, t) =>
-                (float) Math.Sqrt(Math.Pow(u.Center(t).X - v.Center(t).X, 2) +
-                                  Math.Pow(u.Center(t).Y - v.Center(t).Y, 2));
-            
-            var denStream = new DenStream<EuclideanPoint>(simFunc, cmcSimFunc);
-            denStream.AddToDataStream(dataStream);
-            var terminate = denStream.MaintainClusterMap();
-            Thread.Sleep(2000);
-            var clusters = denStream.Cluster();
-            terminate();
-            
-            var sc = new ShrinkageClustering<EuclideanPoint>(100, 1000, simFunc);
+            var sc = new ShrinkageClustering<EuclideanPoint>(100, 1000, 
+                Similarity.EuclideanDistance);
 
             var scClustersAll = new List<dynamic>();
-
+            var clusters = sc.Cluster(dataStream);
             var numClusters = 0;
             foreach (var cluster in clusters)
             {
-                var scClusters = sc.Cluster(cluster);
-                foreach (var scCluster in scClusters)
-                {
-                    var k = numClusters;
-                    scClustersAll.AddRange(scCluster.Select(p => new { x = p.X, y = p.Y, c = k}));
-                }
+                var k = numClusters;
+                scClustersAll.AddRange(cluster.Select(p => new { x = p.X, y = p.Y, c = k}));
                 numClusters++;
             }
             

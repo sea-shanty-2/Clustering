@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using EnvueClustering.Data;
 using NUnit.Framework;
@@ -248,6 +249,63 @@ namespace EnvueClustering.Tests
             {
                 Assert.That(r1, Is.EquivalentTo(r2));
             }
+        }
+
+        [Test]
+        public void DeleteColumns_FalsePredicate_NoneRemoved()
+        {
+            var m = new Matrix(new[,]
+            {
+                {0f, 0, 0, 0},
+                {1f, 1, 1, 1},
+                {2f, 2, 2, 2}
+            });
+            
+            var expected = new Matrix(new[,]
+            {
+                {0f, 0, 0, 0},
+                {1f, 1, 1, 1},
+                {2f, 2, 2, 2}
+            });
+
+            m = m.DeleteColumns(c => c.Contains(9));
+            foreach (var (r1, r2) in m.Zip(expected))
+                Assert.That(r1, Is.EquivalentTo(r2));
+        }
+
+        [Test]
+        public void DeleteColumns_GoodPredicate_SomeRemoved()
+        {
+            var m = new Matrix(new[,]
+            {
+                {0f, 1, 0, 2},
+                {1f, 1, 1, 1},
+                {2f, 2, 2, 2}
+            });
+            
+            var expected = new Matrix(new[,]
+            {
+                {0f, 0},
+                {1f, 1},
+                {2f, 2}
+            });
+
+            m = m.DeleteColumns(c => c.Sum() >= 4);
+            foreach (var (r1, r2) in m.Zip(expected))
+                Assert.That(r1, Is.EquivalentTo(r2));
+        }
+
+        [Test]
+        public void DeleteColumns_AlwaysTruePredicate_RaisedException()
+        {
+            var m = new Matrix(new[,]
+            {
+                {0f, 1, 0, 2},
+                {1f, 1, 1, 1},
+                {2f, 2, 2, 2}
+            });
+            
+            Assert.That(() => m.DeleteColumns(c => true), Throws.ArgumentException);
         }
     }
 }

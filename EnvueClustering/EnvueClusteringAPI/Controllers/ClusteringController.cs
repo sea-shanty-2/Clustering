@@ -116,16 +116,32 @@ namespace EnvueClusteringAPI.Controllers
         [Route("clustering/events")]
         public ActionResult GetClusters()
         {
-            var eventClusters = new List<Streamer[]>();
-            
-            // Cluster on geographical positions
-            var geoClusters = _denStream.Cluster();
-            
-            // Cluster on the stream descriptions
-            foreach (var geoCluster in geoClusters)
-                eventClusters.AddRange(_shrinkageClustering.Cluster(geoCluster));
-            
-            return Ok(eventClusters);
+            if (_terminateClusterMaintenance == null)
+            {
+                return BadRequest("Cluster maintenance has no termination handler. " +
+                                  "Verify that cluster maintenance has been initialized before clustering.");
+            }
+
+            try
+            {
+                var eventClusters = new List<Streamer[]>();
+                
+                // Cluster on geographical positions
+                var geoClusters = _denStream.Cluster();
+                
+                // Cluster on the stream descriptions
+                foreach (var geoCluster in geoClusters)
+                    eventClusters.AddRange(_shrinkageClustering.Cluster(geoCluster));
+                
+                return Ok(eventClusters);
+                
+            }
+            catch (Exception e)
+            {
+                if (_env.IsDevelopment())
+                    return BadRequest(e.Message);
+                return BadRequest();
+            }
         }
 
         /// <summary>

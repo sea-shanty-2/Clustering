@@ -53,26 +53,15 @@ namespace EnvueClustering
         /// <returns></returns>
         private Matrix ShrinkClusters(IEnumerable<T> dataStream)
         {
-            var S = Matrix.SimilarityMatrix(dataStream, _similarityFunction);
+            var S = Matrix.SimilarityMatrix(dataStream, _similarityFunction, normalize: true, inverse: true);
             var SBar = 1 - 2 * S;
             var A = Matrix.RandomAssignmentMatrix(S.Shape[0], _k);
+            var N = S.Count();
 
             foreach (var iteration in _maxIterations.Range())
             {
-                // Remove empty clusters
-                var emptyColumns = A.Columns.Enumerate().Where(pair =>
-                {
-                    var (i, column) = pair;
-                    return Math.Abs(column.Sum()) < 0.0000;
-                }).Select(pair => 
-                { 
-                    var (i, column) = pair;
-                    return i;
-                });
-
-                A = emptyColumns
-                    .Aggregate(A, (m, emptyColumn) => m.DeleteColumn(emptyColumn));
-
+                // Remove empty clusters, update number of columns
+                A = A.DeleteColumns(c => c.Sum() == 0);
                 _k = A.Columns.Count();
                 
                 // Permute cluster membership that minimizes loss the most: 
@@ -81,19 +70,22 @@ namespace EnvueClustering
                 
                 // (b) Compute v
                 var MoA = M.Hadamard(A);
-                var v = MoA.Select(row => row.Min()).ToArray();
-                
+                var v = N.Range().Select(i => M[i].Min() - MoA[i].Sum());
+
                 // Check if we converged
                 if (Math.Abs(v.Sum()) < 0.0001)
                     break;
+
+                Console.WriteLine(Math.Abs(v.Sum()));
                     
                 // (c) Find the object X with the greatest optimization potential
                 var X = v.ArgMin();
-                
+
                 // Reassign X to the cluster C where C = argmin(M[X][j]) w.r.t. j
                 var C = M[X].ArgMin();
+                
                 A[X] = 0f.Repeat(_k).ToArray();
-                A[X][C] = 1;
+                A[X,C] = 1;
             }
 
             return A;

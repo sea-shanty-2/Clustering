@@ -199,5 +199,55 @@ namespace EnvueClustering.Tests
             
             Assert.That((m * n).Shape, Is.EquivalentTo(expectedShape));
         }
+
+        [Test]
+        public void RowAccess_SimpleMatrix_ChangedRow()
+        {
+            var m = new Matrix(new[,]
+            {
+                {0f, 0, 0, 0},
+                {1f, 1, 1, 1},
+                {2f, 2, 2, 2}
+            });
+            
+            var expected = new Matrix(new[,]
+            {
+                {0f, 0, 0, 0},
+                {1f, 1, 1, 1},
+                {3f, 3, 3, 3}
+            });
+
+            m[2] = new[] {3f, 3, 3, 3};
+
+            foreach (var (r1, r2) in m.Zip(expected))
+            {
+                Assert.That(r1, Is.EquivalentTo(r2));
+            }
+        }
+        
+        [Test]
+        public void CellAccess_SimpleMatrix_ChangedCell()
+        {
+            var m = new Matrix(new[,]
+            {
+                {0f, 0, 0, 0},
+                {1f, 1, 1, 1},
+                {2f, 2, 2, 2}
+            });
+            
+            var expected = new Matrix(new[,]
+            {
+                {0f, 0, 0, 0},
+                {1f, 1, 1, 1},
+                {2f, 2, 2, 3}
+            });
+
+            m[2,3] = 3;
+
+            foreach (var (r1, r2) in m.Zip(expected))
+            {
+                Assert.That(r1, Is.EquivalentTo(r2));
+            }
+        }
     }
 }

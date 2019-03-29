@@ -404,13 +404,26 @@ namespace EnvueClustering
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(i), $"Cannot delete column {i} when the matrix only "
-                                                  + "contains {_columns} columns");
+                                                  + $"contains {_columns} columns");
             }
 
             var matrix = new List<float[]>();
             foreach (var (k, column) in Columns.Enumerate())
             {
                 if (k != i)
+                    matrix.Add(column);
+            }
+            
+            return new Matrix(matrix.ToArray()).T;
+        }
+
+        public Matrix DeleteColumns(Predicate<float[]> predicate)
+        {
+            var matrix = new List<float[]>();
+
+            foreach (var (k, column) in Columns.Enumerate())
+            {
+                if (!predicate(column))
                     matrix.Add(column);
             }
             

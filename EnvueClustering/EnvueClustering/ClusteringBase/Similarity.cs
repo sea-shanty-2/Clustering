@@ -40,7 +40,7 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         public static float HaversineDistance(IGeospatial u, IGeospatial v)
         {
-            var R = 6371e3; // Metres
+            var R = 6371e3; // Earth radius in metres
             var uLat = DegreesToRadians(u.Latitude);
             var vLat = DegreesToRadians(v.Latitude);
             var deltaLat = DegreesToRadians(v.Latitude - u.Latitude);
@@ -73,6 +73,18 @@ namespace EnvueClustering.ClusteringBase
         private static double DegreesToRadians(double angle)
         {
             return Math.PI * angle / 180.0;
+        }
+
+        /// <summary>
+        /// Returns the cosine similarity (i.e. angle of separation) between two vectors.
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public static float Cosine(float[] u, float[] v)
+        {
+            return u.Dot(v) / 
+                   u.EuclideanLength() * v.EuclideanLength();
         }
     }
 }

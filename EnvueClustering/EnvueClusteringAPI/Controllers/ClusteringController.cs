@@ -19,6 +19,7 @@ namespace EnvueClusteringAPI.Controllers
     public class ClusteringController : ControllerBase
     {
         private readonly DenStream<EuclideanPoint> _denStream;
+        private readonly ShrinkageClustering<float[]> _shrinkageClustering;
         private readonly IHostingEnvironment _env;
         private Action _terminateClusterMaintenance;
         
@@ -28,6 +29,8 @@ namespace EnvueClusteringAPI.Controllers
             _denStream = new DenStream<EuclideanPoint>(
                 Similarity.EuclideanDistance, 
                 Similarity.EuclideanDistance);
+            _shrinkageClustering = new ShrinkageClustering<float[]>(100, 100, 
+                Similarity.Cosine);
         }
 
         /// <summary>

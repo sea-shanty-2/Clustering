@@ -6,7 +6,7 @@ using EnvueClustering.ClusteringBase;
 
 namespace EnvueClustering
 {
-    public class ShrinkageClustering<T> : IClusterable<T> where T : ITransformable<T>
+    public class ShrinkageClustering<T> : IClusterable<T>
     {
         private int _k;
         private readonly int _maxIterations;

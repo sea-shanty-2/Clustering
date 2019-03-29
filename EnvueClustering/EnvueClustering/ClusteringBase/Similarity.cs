@@ -74,5 +74,17 @@ namespace EnvueClustering.ClusteringBase
         {
             return Math.PI * angle / 180.0;
         }
+
+        /// <summary>
+        /// Returns the cosine similarity (i.e. angle of separation) between two vectors.
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public static float Cosine(float[] u, float[] v)
+        {
+            return u.Dot(v) / 
+                   u.EuclideanLength() * v.EuclideanLength();
+        }
     }
 }

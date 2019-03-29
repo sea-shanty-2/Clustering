@@ -38,6 +38,27 @@ namespace EnvueClustering
         }
 
         /// <summary>
+        /// Calculates the sum of products between corresponding elements in two vectors with equal dimensionality.
+        /// </summary>
+        /// <param name="vector"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Raised if the vectors do not agree on dimensionality.</exception>
+        public static float Dot(this IEnumerable<float> vector, IEnumerable<float> other)
+        {
+            var u = vector.ToArray();
+            var v = other.ToArray();
+            if (u.Length != v.Length)
+                throw new ArgumentException($"Vectors must be of same dimensionality before their dot " +
+                                            $"product can be calculated, but was {u.Length} and {v.Length}");
+            return u.Zip(v).Select(w =>
+            {
+                var (a, b) = w;
+                return a * b;
+            }).Sum();
+        }
+
+        /// <summary>
         /// Multiplies all elements in a vector by a given scalar value.
         /// </summary>
         /// <param name="vector"></param>

@@ -22,7 +22,6 @@ namespace EnvueClustering
         /// Must output 0 if elements are equal, otherwise a positive value.</param>
         public ShrinkageClustering(int k, int maxIterations, Func<T, T, float> similarityFunction)
         {
-            
             _k = k;
             _maxIterations = maxIterations;
             _similarityFunction = similarityFunction;

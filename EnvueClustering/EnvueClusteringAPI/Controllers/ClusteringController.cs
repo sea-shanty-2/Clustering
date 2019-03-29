@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using EnvueClustering;
 using EnvueClustering.ClusteringBase;
@@ -105,6 +106,20 @@ namespace EnvueClusteringAPI.Controllers
                     return BadRequest(e.Message);
                 return BadRequest();
             }
+        }
+
+        public ActionResult GetClusters()
+        {
+            var clusters = _denStream.Cluster();
+
+            foreach (var cluster in clusters)
+            {
+                // Cluster with shrinkage clustering on the stream descriptions
+                var scClusters = _shrinkageClustering.Cluster(cluster.Select(c => c.StreamDescription));
+                // TODO: Analyze the assignment matrix, assign to a cluster, and add to final cluster set.
+            }
+
+            return Ok(clusters);
         }
 
         /// <summary>

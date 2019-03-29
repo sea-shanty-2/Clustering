@@ -21,7 +21,7 @@ namespace EnvueClusteringAPI.Controllers
     public class ClusteringController : ControllerBase
     {
         private readonly DenStream<Streamer> _denStream;
-        private readonly ShrinkageClustering<float[]> _shrinkageClustering;
+        private readonly ShrinkageClustering<Streamer> _shrinkageClustering;
         private readonly IHostingEnvironment _env;
         private Action _terminateClusterMaintenance;
         
@@ -31,7 +31,7 @@ namespace EnvueClusteringAPI.Controllers
             _denStream = new DenStream<Streamer>(
                 Similarity.HaversineDistance, 
                 Similarity.HaversineDistance);
-            _shrinkageClustering = new ShrinkageClustering<float[]>(100, 100, 
+            _shrinkageClustering = new ShrinkageClustering<Streamer>(100, 100, 
                 Similarity.Cosine);
         }
 
@@ -115,7 +115,7 @@ namespace EnvueClusteringAPI.Controllers
             foreach (var cluster in clusters)
             {
                 // Cluster with shrinkage clustering on the stream descriptions
-                var scClusters = _shrinkageClustering.Cluster(cluster.Select(c => c.StreamDescription));
+                var scClusters = _shrinkageClustering.Cluster(cluster);
                 // TODO: Analyze the assignment matrix, assign to a cluster, and add to final cluster set.
             }
 

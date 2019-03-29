@@ -7,12 +7,13 @@ namespace EnvueClusteringAPI.Models
     /// <summary>
     /// Model class for containing information about streamers.
     /// </summary>
-    public class Streamer : IGeospatial, ITransformable<Streamer>
+    public class Streamer : IGeospatial, ITransformable<Streamer>, IVectorRepresentable<float[]>
     {
         public float Longitude { get; set; }
 
         public float Latitude { get; set; }
         public float[] StreamDescription { get; set; }
+        public float[] AsVector() => StreamDescription;
 
         public Guid Id { get; set; }
 

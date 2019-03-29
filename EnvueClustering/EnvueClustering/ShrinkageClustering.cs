@@ -56,6 +56,7 @@ namespace EnvueClustering
             var S = Matrix.SimilarityMatrix(dataStream, _similarityFunction, normalize: true, inverse: true);
             var SBar = 1 - 2 * S;
             var A = Matrix.RandomAssignmentMatrix(S.Shape[0], _k);
+            var N = S.Count();
 
             foreach (var iteration in _maxIterations.Range())
             {
@@ -69,11 +70,13 @@ namespace EnvueClustering
                 
                 // (b) Compute v
                 var MoA = M.Hadamard(A);
-                var v = MoA.Select(row => row.Min()).ToArray();
-                
+                var v = N.Range().Select(i => M[i].Min() - MoA[i].Sum());
+
                 // Check if we converged
                 if (Math.Abs(v.Sum()) < 0.0001)
                     break;
+
+                Console.WriteLine(Math.Abs(v.Sum()));
                     
                 // (c) Find the object X with the greatest optimization potential
                 var X = v.ArgMin();

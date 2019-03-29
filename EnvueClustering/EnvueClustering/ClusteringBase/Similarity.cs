@@ -40,7 +40,7 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         public static float HaversineDistance(IGeospatial u, IGeospatial v)
         {
-            var R = 6371e3; // Metres
+            var R = 6371e3; // Earth radius in metres
             var uLat = DegreesToRadians(u.Latitude);
             var vLat = DegreesToRadians(v.Latitude);
             var deltaLat = DegreesToRadians(v.Latitude - u.Latitude);

@@ -38,7 +38,7 @@ namespace EnvueClustering.ClusteringBase
         /// <param name="u"></param>
         /// <param name="v"></param>
         /// <returns></returns>
-        public static float HaversineDistance(IGeospatial u, IGeospatial v)
+        public static float Haversine(IGeospatial u, IGeospatial v)
         {
             var R = 6371e3; // Earth radius in metres
             var uLat = DegreesToRadians(u.Latitude);
@@ -64,10 +64,10 @@ namespace EnvueClustering.ClusteringBase
         /// <param name="time">The time at which to evaluate the centres of the micro clusters.</param>
         /// <typeparam name="T">The type of the data objects.</typeparam>
         /// <returns></returns>
-        public static float HaversineDistance<T>(
+        public static float Haversine<T>(
             CoreMicroCluster<T> u, CoreMicroCluster<T> v, int time) where T : IGeospatial, ITransformable<T>
         {
-            return HaversineDistance(u.Center(time), v.Center(time));
+            return Haversine(u.Center(time), v.Center(time));
         }
 
         private static double DegreesToRadians(double angle)

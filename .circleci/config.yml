@@ -15,6 +15,7 @@ jobs:
       enabled: true
     steps:
       - checkout
+      - run: docker build -t envue/clustering .
       - run: docker push envue/clustering
 
 workflows:

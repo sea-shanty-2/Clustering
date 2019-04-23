@@ -15,7 +15,8 @@ namespace EnvueClustering.TimelessDenStream
         private const float MAX_RADIUS = 15;
         
         // DBSCAN parameters
-        private const float EPS = 250, MIN_POINTS = 2;
+        private const float EPS = 250;
+        private const int MIN_POINTS = 2;
         
         // Data stream and micro cluster map
         private readonly List<UntimedMicroCluster<T>> _microClusters;
@@ -40,6 +41,8 @@ namespace EnvueClustering.TimelessDenStream
 
             _microClusters = new List<UntimedMicroCluster<T>>();
             _dataStream = new ConcurrentQueue<T>();
+            
+            _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(EPS, MIN_POINTS, microClusterSimilarityFunction);
         }
 
         public void Add(T dataPoint)
@@ -102,6 +105,29 @@ namespace EnvueClustering.TimelessDenStream
             }
         }
 
+        public T[][] Cluster()
+        {
+            _clusteringInProgress = true;  // Lock micro cluster map during clustering
+            
+            _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(50, 2, _microClusterSimilarityFunction);
+            var pcmcClusters = _dbscan.Cluster(_microClusters);
+            var clusters = new List<T[]>();
+            
+            foreach (var pcmcCluster in pcmcClusters)
+            {
+                var cluster = new List<T>();
+                foreach (var pcmc in pcmcCluster)
+                {
+                    cluster.AddRange(pcmc.Points);
+                }
+                
+                clusters.Add(cluster.ToArray());
+            }
+                        
+            _clusteringInProgress = false;  // Unlock PCMC and OCMC collections
+            return clusters.ToArray();
+        }
+
         private void Merge(T p)
         {
             // Sort micro clusters by distance to p
@@ -145,6 +171,5 @@ namespace EnvueClustering.TimelessDenStream
             cluster.Points.Remove(p);
             return false;
         }
-
     }
 }

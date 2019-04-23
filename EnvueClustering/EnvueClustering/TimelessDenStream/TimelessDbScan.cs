@@ -8,9 +8,9 @@ namespace EnvueClustering.TimelessDenStream
 {
     public class TimelessDbScan<T> : IClusterable<T>
     {
-        private float _eps;
-        private int _minPts;
-        private Func<T, T, float> _similarityFunction;
+        private readonly float _eps;
+        private readonly int _minPts;
+        private readonly Func<T, T, float> _similarityFunction;
         
         public TimelessDbScan(float eps, int minPts, Func<T, T, float> similarityFunction)
         {
@@ -25,11 +25,11 @@ namespace EnvueClustering.TimelessDenStream
         }
         
         /// <summary>
-        /// Get all points within "point"'s eps-neighbourhood
+        /// Get all points within "point"'s eps-neighbourhood.
         /// </summary>
-        /// <param name="point">The center point of the neighbourhood</param>
-        /// <param name="dataSet">The data set from which to retrieve points</param>
-        /// <returns>An array of points in radius eps of center point "point"</returns>
+        /// <param name="point">The center point of the neighbourhood.</param>
+        /// <param name="dataSet">The data set from which to retrieve points.</param>
+        /// <returns>An array of points in radius eps of center point "point".</returns>
         private T[] GetNeighbours(T point, IEnumerable<T> dataSet)
         {
             return dataSet.Where(other => _similarityFunction(point, other) <= _eps).ToArray();
@@ -41,7 +41,7 @@ namespace EnvueClustering.TimelessDenStream
         /// </summary>
         /// <param name="dataStream">Enumerable list of points to cluster</param>
         /// <returns>An array containing clusters based on "dataStream"</returns>
-        /// <exception cref="EnvueArgumentException">Throws EnvueArgumentException if invalid input is recieved</exception>
+        /// <exception cref="EnvueArgumentException">Throws EnvueArgumentException if invalid input is received</exception>
         public T[][] Cluster(IEnumerable<T> dataStream)
         {
             var dataArr = dataStream.ToArray();

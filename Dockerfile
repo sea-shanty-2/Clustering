@@ -1,8 +1,8 @@
 # Build build environment
 FROM microsoft/dotnet:sdk AS build-env
 WORKDIR /app
-COPY . ./
-RUN dotnet restore
+COPY . /app
+RUN dotnet restore EnvueClustering/
 RUN dotnet publish EnvueClustering/EnvueClusteringAPI/ -c Release -o ../../out
 
 # Build runtime image

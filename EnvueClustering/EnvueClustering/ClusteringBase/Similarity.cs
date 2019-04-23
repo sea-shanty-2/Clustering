@@ -25,7 +25,7 @@ namespace EnvueClustering.ClusteringBase
         /// <returns></returns>
         public static float EuclideanDistance<T>(UntimedMicroCluster<T> u, UntimedMicroCluster<T> v) where T : IEuclidean, ITransformable<T>
         {
-            return (float)Math.Sqrt(Math.Pow(u.Center.X - v.Center.X, 2) + Math.Pow(u.Center.Y - v.Center.Y, 2));
+            return EuclideanDistance(u.Center, v.Center);
         }
 
         /// <summary>
@@ -65,6 +65,22 @@ namespace EnvueClustering.ClusteringBase
             var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
             return (float) (R * c);
+        }
+        
+        
+        /// <summary>
+        /// Returns the distance (in metres) between the centres of two micro clusters
+        /// defined for data objects that implement both IGeospatial and ITransformable.
+        /// </summary>
+        /// <param name="u">First micro cluster.</param>
+        /// <param name="v">Second micro cluster.</param>
+        /// <param name="time">The time at which to evaluate the centres of the micro clusters.</param>
+        /// <typeparam name="T">The type of the data objects.</typeparam>
+        /// <returns></returns>
+        public static float Haversine<T>(
+            UntimedMicroCluster<T> u, UntimedMicroCluster<T> v) where T : IGeospatial, ITransformable<T>
+        {
+            return Haversine(u.Center, v.Center);
         }
 
         /// <summary>

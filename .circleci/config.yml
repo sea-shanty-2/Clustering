@@ -16,6 +16,7 @@ jobs:
     steps:
       - checkout
       - run: docker build -t envue/clustering .
+      - run: docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASS}
       - run: docker push envue/clustering
 
 workflows:

@@ -2,10 +2,31 @@ version: 2
 jobs:
   build:
     docker:
-    - image: microsoft/dotnet:sdk
+      - image: microsoft/dotnet:sdk
     steps:
-    - checkout
-    - run: find .
-    - run: dotnet restore EnvueClustering/EnvueClustering.sln
-    - run: dotnet build EnvueClustering/EnvueClustering.sln
-    - run: dotnet test --no-build EnvueClustering/EnvueClustering.Tests
+      - checkout
+      - run: find .
+      - run: dotnet restore EnvueClustering/EnvueClustering.sln
+      - run: dotnet build EnvueClustering/EnvueClustering.sln
+      - run: dotnet test --no-build EnvueClustering/EnvueClustering.Tests
+
+  deploy:
+    machine:
+      enabled: true
+    steps:
+      - checkout
+      - run: docker build -t envue/clustering .
+      - run: docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASS}
+      - run: docker push envue/clustering
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+         requires:
+           - build
+         filters:
+           branches:
+             only: master

@@ -21,16 +21,18 @@ namespace EnvueClusteringAPI.Controllers
     public class ClusteringController : ControllerBase
     {
         private readonly DenStream<Streamer> _denStream;
-        private readonly ShrinkageClustering<Streamer> _shrinkageClustering;
+        private readonly IClusterable<Streamer> _shrinkageClustering;
         private readonly IHostingEnvironment _env;
         private Action _terminateClusterMaintenance;
         
         public ClusteringController(IHostingEnvironment env)
         {
             _env = env;
+            
             _denStream = new DenStream<Streamer>(
-                Similarity.HaversineDistance, 
-                Similarity.HaversineDistance);
+                Similarity.Haversine, 
+                Similarity.Haversine);
+            
             _shrinkageClustering = new ShrinkageClustering<Streamer>(100, 100, 
                 Similarity.Cosine);
         }

@@ -250,6 +250,7 @@ namespace EnvueClustering
             });
 
             var (iMin, _) = sorted.Last();
+
             return iMin;
         }
 

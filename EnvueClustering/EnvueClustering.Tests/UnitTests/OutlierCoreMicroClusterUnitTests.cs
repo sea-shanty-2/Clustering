@@ -40,13 +40,13 @@ namespace EnvueClustering.Tests
         }
 
         [Test]
-        public void Radius_TimePassed_SameRadius()
+        public void Radius_TimePassed_NotSameRadius()
         {
             var pcmc = new OutlierCoreMicroCluster<EuclideanPoint>(_fullCluster, _simFunc);
             var r1 = pcmc.Radius(_currentTime);
-            _currentTime++;
+            _currentTime += 100;
             var r2 = pcmc.Radius(_currentTime);
-            Assert.That(r1, Is.EqualTo(r2));
+            Assert.That(r1, Is.Not.EqualTo(r2));
         }
         
         [Test]

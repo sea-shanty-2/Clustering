@@ -7,6 +7,7 @@ using System.Threading;
 using EnvueClustering;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
+using EnvueClustering.TimelessDenStream;
 using EnvueClusteringAPI.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace EnvueClusteringAPI.Controllers
     [ApiController]
     public class ClusteringController : ControllerBase
     {
-        private readonly DenStream<Streamer> _denStream;
+        private readonly TimelessDenStream<Streamer> _denStream;
         private readonly IClusterable<Streamer> _shrinkageClustering;
         private readonly IHostingEnvironment _env;
         private Action _terminateClusterMaintenance;
@@ -29,7 +30,7 @@ namespace EnvueClusteringAPI.Controllers
         {
             _env = env;
             
-            _denStream = new DenStream<Streamer>(
+            _denStream = new TimelessDenStream<Streamer>(
                 Similarity.Haversine, 
                 Similarity.Haversine);
             
@@ -71,7 +72,7 @@ namespace EnvueClusteringAPI.Controllers
         {
             try
             {
-                _denStream.AddToDataStream(streamers);
+                _denStream.Add(streamers);
                 return Ok();
             }
             catch (Exception e)

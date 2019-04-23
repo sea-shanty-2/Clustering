@@ -6,6 +6,7 @@ using System.Threading;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
 using EnvueClustering.Exceptions;
+using EnvueClustering.TimelessDenStream;
 using Newtonsoft.Json;
 
 namespace EnvueClustering
@@ -14,8 +15,37 @@ namespace EnvueClustering
     {
         static void Main(string[] args)
         {
-            ShrinkageClusteringTest();
+            TimelessDenStreamTest();
+        }
+
+        private static void TimelessDenStreamTest()
+        {
+            var filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+            var denStream = new TimelessDenStream<EuclideanPoint>(
+                Similarity.EuclideanDistance, 
+                Similarity.EuclideanDistance);
+
+            var terminate = denStream.MaintainClusterMap();
+
+            foreach (var p in dataStream)
+            {
+                denStream.Add(p);
+            }
             
+            Thread.Sleep(2000);
+
+            foreach (var p in dataStream.TakeLast(110))
+            {
+                denStream.Remove(p);
+            }
+
+            var clusters = denStream.Cluster();
+
+            terminate();
+
+            Console.WriteLine(clusters.Pretty());
+            Console.WriteLine(clusters.Length);
         }
 
         private static void ShrinkageClusteringTest()

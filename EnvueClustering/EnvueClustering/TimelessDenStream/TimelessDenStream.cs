@@ -58,9 +58,19 @@ namespace EnvueClustering.TimelessDenStream
 
         public void Remove(T dataPoint)
         {
+            var emptyMicroClusters = new List<UntimedMicroCluster<T>>();
             foreach (var microCluster in _microClusters)
             {
                 microCluster.Points.RemoveAll(p => p.Id == dataPoint.Id);
+                if (microCluster.Points.Count == 0)
+                {
+                    emptyMicroClusters.Add(microCluster);
+                }
+            }
+
+            foreach (var emptyMicroCluster in emptyMicroClusters)
+            {
+                _microClusters.Remove(emptyMicroCluster);
             }
         }
 
@@ -107,6 +117,7 @@ namespace EnvueClustering.TimelessDenStream
 
         public T[][] Cluster()
         {
+            Console.WriteLine($"We have {_microClusters.Count} MCs.");
             _clusteringInProgress = true;  // Lock micro cluster map during clustering
             
             _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(50, 2, _microClusterSimilarityFunction);
@@ -135,6 +146,14 @@ namespace EnvueClustering.TimelessDenStream
                 _pointSimilarityFunction(u.Center, p)
                     .CompareTo(_pointSimilarityFunction(v.Center, p)));
 
+            if (_microClusters.Count == 0)
+            {
+                Console.WriteLine($"Creating new MC with p.");
+                // Create a new micro cluster, add to the cluster map
+                _microClusters.Add(new UntimedMicroCluster<T>(
+                    new [] {p}, _pointSimilarityFunction));
+            }
+
             var closestMicroCluster = _microClusters.First();
             
             // Try to insert the point into this cluster
@@ -143,10 +162,13 @@ namespace EnvueClustering.TimelessDenStream
             
             if (!successfulInsert)
             {
+                Console.WriteLine($"Creating new MC with p.");
                 // Create a new micro cluster, add to the cluster map
                 _microClusters.Add(new UntimedMicroCluster<T>(
                     new [] {p}, _pointSimilarityFunction));
             }
+
+            Console.WriteLine($"Merged p into existing MC.");
         }
         
         /// <summary>

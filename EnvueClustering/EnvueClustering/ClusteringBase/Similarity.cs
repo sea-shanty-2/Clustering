@@ -1,5 +1,6 @@
 using System;
 using EnvueClustering.Data;
+using EnvueClustering.TimelessDenStream;
 
 namespace EnvueClustering.ClusteringBase
 {
@@ -14,6 +15,17 @@ namespace EnvueClustering.ClusteringBase
         public static float EuclideanDistance(IEuclidean u, IEuclidean v)
         {
             return (float)Math.Sqrt(Math.Pow(u.X - v.X, 2) + Math.Pow(u.Y - v.Y, 2));
+        }
+        
+        /// <summary>
+        /// Returns the euclidean distance between two euclidean points.
+        /// </summary>
+        /// <param name="u"></param>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public static float EuclideanDistance<T>(UntimedMicroCluster<T> u, UntimedMicroCluster<T> v) where T : IEuclidean, ITransformable<T>
+        {
+            return (float)Math.Sqrt(Math.Pow(u.Center.X - v.Center.X, 2) + Math.Pow(u.Center.Y - v.Center.Y, 2));
         }
 
         /// <summary>

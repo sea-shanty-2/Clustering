@@ -3,8 +3,10 @@ using EnvueClustering.ClusteringBase;
 
 namespace EnvueClustering.Data
 {
-    public class EuclideanPoint : IEuclidean, ITransformable<EuclideanPoint>
+    public class EuclideanPoint : IEuclidean, ITransformable<EuclideanPoint>, IIdentifiable
     {
+        public int Id => TimeStamp;
+
         public float Radius { get; set; }
         public int TimeStamp { get; set; }
 

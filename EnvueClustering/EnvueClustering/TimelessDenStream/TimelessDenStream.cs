@@ -45,6 +45,8 @@ namespace EnvueClustering.TimelessDenStream
             _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(EPS, MIN_POINTS, microClusterSimilarityFunction);
         }
 
+        public List<UntimedMicroCluster<T>> MicroClusters => _microClusters;
+
         public void Add(T dataPoint)
         {
             _dataStream.Enqueue(dataPoint);

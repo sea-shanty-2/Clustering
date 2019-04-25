@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
@@ -15,7 +16,33 @@ namespace EnvueClustering
     {
         static void Main(string[] args)
         {
-            TimelessDenStreamTest();
+            TimelessDenStreamMCTest();
+        }
+
+        private static void TimelessDenStreamMCTest()
+        {
+            var filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+            var denStream = new TimelessDenStream<EuclideanPoint>(
+                Similarity.EuclideanDistance, 
+                Similarity.EuclideanDistance);
+
+            var terminate = denStream.MaintainClusterMap();
+
+            foreach (var p in dataStream)
+            {
+                denStream.Add(p);
+            }
+            
+            Thread.Sleep(2000);
+
+            foreach (var p in dataStream.TakeLast(110))
+            {
+                denStream.Remove(p);
+            }
+
+            var mcs = denStream.MicroClusters;
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/mcs.json", JsonConvert.SerializeObject(mcs));
         }
 
         private static void TimelessDenStreamTest()

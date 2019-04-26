@@ -84,6 +84,29 @@ namespace EnvueClusteringAPI.Controllers
         }
 
         /// <summary>
+        /// Removes the data point from the cluster map and reinserts it in order
+        /// to reflect a change in position.
+        /// </summary>
+        /// <param name="streamer"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("data/update")]
+        public ActionResult UpdateDataPoint(Streamer streamer)
+        {
+            try
+            {
+                _denStream.Update(streamer);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                if (_env.IsDevelopment())
+                    return BadRequest(e.Message);
+                return BadRequest();
+            }
+        }
+
+        /// <summary>
         /// Terminates the micro-cluster maintenance procedure.
         /// </summary>
         /// <returns></returns>

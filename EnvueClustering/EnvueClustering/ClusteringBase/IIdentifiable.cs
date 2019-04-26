@@ -4,6 +4,6 @@ namespace EnvueClustering.ClusteringBase
 {
     public interface IIdentifiable
     {
-        int Id { get; }
+        string Id { get; }
     }
 }

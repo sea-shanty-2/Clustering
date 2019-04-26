@@ -5,7 +5,7 @@ namespace EnvueClustering.Data
 {
     public class EuclideanPoint : IEuclidean, ITransformable<EuclideanPoint>, IIdentifiable
     {
-        public int Id => TimeStamp;
+        public string Id => TimeStamp.ToString();
 
         public float Radius { get; set; }
         public int TimeStamp { get; set; }

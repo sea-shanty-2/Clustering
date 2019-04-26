@@ -61,7 +61,7 @@ namespace EnvueClustering.TimelessDenStream
             var emptyMicroClusters = new List<UntimedMicroCluster<T>>();
             foreach (var microCluster in _microClusters)
             {
-                microCluster.Points.RemoveAll(p => p.Id == dataPoint.Id);
+                microCluster.Points.RemoveAll(p => p.Id.Equals(dataPoint.Id));
                 if (microCluster.Points.Count == 0)
                 {
                     emptyMicroClusters.Add(microCluster);

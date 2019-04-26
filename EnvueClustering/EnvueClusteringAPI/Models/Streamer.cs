@@ -15,9 +15,9 @@ namespace EnvueClusteringAPI.Models
         public float[] StreamDescription { get; set; }
         public float[] AsVector() => StreamDescription;
 
-        public int Id { get; }
+        public string Id { get; }
 
-        public Streamer(float lon, float lat, float[] streamDescription, int timestamp, int id)
+        public Streamer(float lon, float lat, float[] streamDescription, int timestamp, string id)
         {
             Longitude = lon;
             Latitude = lat;

@@ -8,43 +8,20 @@ ArrayList<Point> ocmcPoints = new ArrayList<Point>();
 void setup() {
   size(600, 600);
   background(255);
-  
-  // points.add(new Point(250, 300, 5)); 
-  // points.add(new Point(300, 250, 5));
-  // points.add(new Point(300, 350, 5));
-  // points.add(new Point(350, 300, 5));
 
   readRawPoints("data.synthetic.json", points);
-  readPoints("ocmcs.json", ocmcs);
-  readPoints("ocmcPoints.json", ocmcPoints);
-  readPoints("pcmcs.json", pcmcs);
-  readPoints("pcmcPoints.json", pcmcPoints);
-  noStroke();
-  fill(150, 150, 150);
+  readMicroClusters("mcs.json", ocmcs);
+
+  // Display raw points
   for (int i = 0; i < points.size(); i++) {
     points.get(i).show();
   }
   
-  stroke(0);
-  fill(255, 0, 0);
-  for (int i = 0; i < ocmcPoints.size(); i++) {
-    ocmcPoints.get(i).show();
-  }
-  
-  fill(0, 200, 0);
-  for (int i = 0; i < pcmcPoints.size(); i++) {
-    pcmcPoints.get(i).show();
-  }
-  
+  // Draw MCs as green circles
   noFill();
-  stroke(255, 0, 0);
+  stroke(0, 150, 0);
   for (int i = 0; i < ocmcs.size(); i++) {
     ocmcs.get(i).show();
-  }
-  
-  stroke(0, 200, 0);
-    for (int i = 0; i < pcmcs.size(); i++) {
-      pcmcs.get(i).show();
   }
 }
 
@@ -53,6 +30,20 @@ int readRawPoints (String filename, ArrayList<Point> toAdd) {
   for (int i = 0; i < values.size(); i++) {
     JSONObject jp = values.getJSONObject(i);
     toAdd.add(new Point(jp.getFloat("x"), jp.getFloat("y"), 2));
+  }
+  return values.size();
+}
+
+int readMicroClusters(String fromFile, ArrayList<Point> toAdd) {
+  JSONArray values = loadJSONArray(fromFile);
+  for (int i = 0; i < values.size(); i++) {
+    // Get the center and the radius
+    JSONObject jp = values.getJSONObject(i);
+    float x = jp.getJSONObject("Center").getFloat("X");
+    float y = jp.getJSONObject("Center").getFloat("Y");
+    float r = jp.getFloat("Radius");
+
+    toAdd.add(new Point(x, y, r));
   }
   return values.size();
 }

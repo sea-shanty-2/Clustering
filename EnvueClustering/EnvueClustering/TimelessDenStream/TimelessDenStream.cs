@@ -58,6 +58,11 @@ namespace EnvueClustering.TimelessDenStream
                 Add(dataPoint);
         }
 
+        /// <summary>
+        /// Removes a data point from the cluster map. The object to be removed is
+        /// determined by the Id attribute.
+        /// </summary>
+        /// <param name="dataPoint"></param>
         public void Remove(T dataPoint)
         {
             var emptyMicroClusters = new List<UntimedMicroCluster<T>>();
@@ -74,6 +79,17 @@ namespace EnvueClustering.TimelessDenStream
             {
                 _microClusters.Remove(emptyMicroCluster);
             }
+        }
+
+        /// <summary>
+        /// Removes the data point from the cluster map and reinserts it in order
+        /// to reflect a change in position.
+        /// </summary>
+        /// <param name="dataPoint"></param>
+        public void Update(T dataPoint)
+        {
+            Remove(dataPoint);
+            Add(dataPoint);
         }
 
         /// <summary>

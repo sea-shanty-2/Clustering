@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -24,6 +25,8 @@ namespace EnvueClusteringAPI.Controllers
         private readonly TimelessDenStream<Streamer> _denStream;
         private readonly IClusterable<Streamer> _shrinkageClustering;
         private readonly IHostingEnvironment _env;
+
+        private const bool TEST_ENV = true;  //TODO: Remove this when we push to prod, its a quick debug bool
         
         public ClusteringController(IHostingEnvironment env, TimelessDenStream<Streamer> denStream)
         {
@@ -52,7 +55,7 @@ namespace EnvueClusteringAPI.Controllers
             }
             catch (Exception e)
             {
-                if (_env.IsDevelopment())
+                if (_env.IsDevelopment() || TEST_ENV)
                     return BadRequest(e.Message);
                 return BadRequest();
             }
@@ -75,7 +78,7 @@ namespace EnvueClusteringAPI.Controllers
             }
             catch (Exception e)
             {
-                if (_env.IsDevelopment())
+                if (_env.IsDevelopment() || TEST_ENV)
                     return BadRequest(e.Message);
                 return BadRequest();
             }
@@ -98,7 +101,24 @@ namespace EnvueClusteringAPI.Controllers
             }
             catch (Exception e)
             {
-                if (_env.IsDevelopment())
+                if (_env.IsDevelopment() || TEST_ENV)
+                    return BadRequest(e.Message);
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]
+        [Route("data/remove")]
+        public ActionResult RemoveDataPoint(Streamer streamer)
+        {
+            try
+            {
+                _denStream.Remove(streamer);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                if (_env.IsDevelopment() || TEST_ENV)
                     return BadRequest(e.Message);
                 return BadRequest();
             }
@@ -119,7 +139,7 @@ namespace EnvueClusteringAPI.Controllers
             }
             catch (Exception e)
             {
-                if (_env.IsDevelopment())
+                if (_env.IsDevelopment() || TEST_ENV)
                     return BadRequest(e.Message);
                 return BadRequest();
             }
@@ -149,7 +169,7 @@ namespace EnvueClusteringAPI.Controllers
             }
             catch (Exception e)
             {
-                if (_env.IsDevelopment())
+                if (_env.IsDevelopment() || TEST_ENV)
                     return BadRequest(e.Message);
                 return BadRequest();
             }

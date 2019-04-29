@@ -31,6 +31,9 @@ namespace EnvueClustering.TimelessDenStream
         
         // Local control variables
         private bool _userTerminated, _clusteringInProgress;
+        
+        // Termination handler
+        private Action _terminate;
 
         public TimelessDenStream(
             Func<T, T, float> pointSimilarityFunction,
@@ -43,9 +46,18 @@ namespace EnvueClustering.TimelessDenStream
             _dataStream = new ConcurrentQueue<T>();
             
             _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(EPS, MIN_POINTS, microClusterSimilarityFunction);
+            _terminate = MaintainClusterMap();
         }
 
         public List<UntimedMicroCluster<T>> MicroClusters => _microClusters;
+
+        /// <summary>
+        /// Terminates the cluster maintenance algorithm.
+        /// </summary>
+        public void Terminate()
+        {
+            _terminate();
+        }
 
         public void Add(T dataPoint)
         {
@@ -107,13 +119,16 @@ namespace EnvueClustering.TimelessDenStream
                     $"Use the SetDataStream() method to initialize the data stream before calling.\n ");
             }
             
+            _userTerminated = false;  // Reset this in case it was stopped earlier
             var maintainClusterMapThread = Task.Run(() => MaintainClusterMapAsync());  // Run in background thread
-            return () =>
+            _terminate = () =>
             {
                 _userTerminated = true;
                 _dataStream = null;
                 maintainClusterMapThread.Wait();
             };  // Return an action to force the thread to terminate
+
+            return _terminate;
         }
 
         private void MaintainClusterMapAsync()
@@ -135,6 +150,13 @@ namespace EnvueClustering.TimelessDenStream
 
         public T[][] Cluster()
         {
+            if (_userTerminated)
+            {
+                throw new InvalidOperationException(
+                    "Cluster maintenance has been terminated by the user. " +
+                    "Cannot cluster without maintenance.");
+            }
+
             Console.WriteLine($"We have {_microClusters.Count} MCs.");
             _clusteringInProgress = true;  // Lock micro cluster map during clustering
             

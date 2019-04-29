@@ -50,7 +50,7 @@ namespace EnvueClustering.TimelessDenStream
             if (dataArr.Length == 0)
                 throw new EnvueArgumentException("Data stream is empty.");
             if (dataArr.Count() < 2)
-                throw new EnvueArgumentException("Data stream only contains two elements, i.e. only one cluster.");
+                return new [] {dataArr};  // Only one element, only one cluster :) 
 
             var visitedPoints = new List<T>();
             var clusters = new List<T[]>();

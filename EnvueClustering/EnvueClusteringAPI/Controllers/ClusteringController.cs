@@ -24,20 +24,16 @@ namespace EnvueClusteringAPI.Controllers
         private readonly TimelessDenStream<Streamer> _denStream;
         private readonly IClusterable<Streamer> _shrinkageClustering;
         private readonly IHostingEnvironment _env;
-        private Action _terminateClusterMaintenance;
         
-        public ClusteringController(IHostingEnvironment env)
+        public ClusteringController(IHostingEnvironment env, TimelessDenStream<Streamer> denStream)
         {
             _env = env;
-            
-            _denStream = new TimelessDenStream<Streamer>(
-                Similarity.Haversine, 
-                Similarity.Haversine);
-            
+            _denStream = denStream;
             _shrinkageClustering = new ShrinkageClustering<Streamer>(100, 100, 
                 Similarity.Cosine);
             
-            _terminateClusterMaintenance = _denStream.MaintainClusterMap();  // So a call to /init isn't necessary
+            
+            
         }
 
         /// <summary>
@@ -51,7 +47,7 @@ namespace EnvueClusteringAPI.Controllers
         {
             try
             {
-                _terminateClusterMaintenance = _denStream.MaintainClusterMap();
+                _denStream.MaintainClusterMap();
                 return Ok();
             }
             catch (Exception e)
@@ -118,14 +114,7 @@ namespace EnvueClusteringAPI.Controllers
         {
             try
             {
-                if (_terminateClusterMaintenance == null)
-                {
-                    return BadRequest(
-                        "Cluster maintenance has no termination handler. " +
-                        "Verify that cluster maintenance has been initialized.");
-                }
-
-                _terminateClusterMaintenance?.Invoke();
+                _denStream.Terminate();
                 return Ok();
             }
             catch (Exception e)
@@ -144,12 +133,6 @@ namespace EnvueClusteringAPI.Controllers
         [Route("clustering/events")]
         public ActionResult GetClusters()
         {
-            if (_terminateClusterMaintenance == null)
-            {
-                return BadRequest("Cluster maintenance has no termination handler. " +
-                                  "Verify that cluster maintenance has been initialized before clustering.");
-            }
-
             try
             {
                 var eventClusters = new List<Streamer[]>();

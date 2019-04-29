@@ -5,7 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using EnvueClustering;
+using EnvueClustering.ClusteringBase;
 using EnvueClustering.Data;
+using EnvueClustering.TimelessDenStream;
+using EnvueClusteringAPI.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -30,12 +33,17 @@ namespace EnvueClusteringAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add a singleton instance of DenStream so it becomes stateful
+            services.AddSingleton(
+                new TimelessDenStream<Streamer>(
+                    Similarity.Haversine, 
+                    Similarity.Haversine));
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info {Title = "Envue Clustering", Version = "v1"});
             });
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,7 +51,7 @@ namespace EnvueClusteringAPI
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage(); 
             }
             else
             {

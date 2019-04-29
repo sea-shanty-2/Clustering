@@ -36,6 +36,8 @@ namespace EnvueClusteringAPI.Controllers
             
             _shrinkageClustering = new ShrinkageClustering<Streamer>(100, 100, 
                 Similarity.Cosine);
+            
+            _terminateClusterMaintenance = _denStream.MaintainClusterMap();  // So a call to /init isn't necessary
         }
 
         /// <summary>

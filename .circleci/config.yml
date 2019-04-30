@@ -44,10 +44,12 @@ workflows:
            - build
          filters:
            branches:
-             only: testing-integration
+             only:
+               - testing-integration
+               - master
       - deploy:
          requires:
-           - build
+           - integration_test
          filters:
            branches:
              only: master

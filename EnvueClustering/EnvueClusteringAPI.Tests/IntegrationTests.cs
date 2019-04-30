@@ -26,12 +26,22 @@ namespace EnvueClusteringAPI.Tests
             this.streamDescription = streamDescription;
             timeStamp = timestamp;
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is StreamRequest other && (id == other.id &&
+                                                  longitude == other.longitude &&
+                                                  latitude == other.latitude &&
+                                                  streamDescription == other.streamDescription &&
+                                                  timeStamp == other.timeStamp);
+        }
     }
     
     [TestFixture]
     public class IntegrationTests
     {
         private readonly StreamRequest _stream = new StreamRequest("TestStream", 10, 20, new[] {0, 1, 0}, 0);
+        private readonly string _clusterResult = "[[{\"longitude\": 10,\"latitude\": 20,\"streamDescription\":[0,1,0],\"id\": \"TestStream\",\"timeStamp\": 0}]]";
         
         private HttpClient _client;
 
@@ -74,11 +84,10 @@ namespace EnvueClusteringAPI.Tests
         public async Task ClusteringEvent_OnePoint_OnePoint()
         {
             await AddStream();
-        
             HttpResponseMessage response = await _client.GetAsync("clustering/events");
-            
+
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("[]", await response.Content.ReadAsStringAsync());
+            Assert.IsTrue(_stream.Equals(JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync()) as StreamRequest));
         }
 
         [Test]

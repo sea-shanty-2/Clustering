@@ -63,7 +63,9 @@ namespace EnvueClustering.TimelessDenStream
         {
             if (dataPoint.Id == null)
                 throw new ArgumentException("Cannot add a broadcast with a NULL id.");
+            
             _dataStream.Enqueue(dataPoint);
+
         }
 
         public void Add(IEnumerable<T> dataPoints)
@@ -140,9 +142,12 @@ namespace EnvueClustering.TimelessDenStream
                 if (_userTerminated)
                     return;
                 
+                if (_clusteringInProgress)
+                    continue;
+                
                 // Get the next data point in the data stream
                 var successfulDequeue = _dataStream.TryDequeue(out var p);
-                if (!successfulDequeue || _clusteringInProgress)
+                if (!successfulDequeue)
                     continue;
                 
                 // Merge the dataPoint into the micro cluster map
@@ -160,25 +165,37 @@ namespace EnvueClustering.TimelessDenStream
             }
 
             Console.WriteLine($"We have {_microClusters.Count} MCs.");
-            _clusteringInProgress = true;  // Lock micro cluster map during clustering
-            
-            _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(50, 2, _microClusterSimilarityFunction);
-            var pcmcClusters = _dbscan.Cluster(_microClusters);
-            var clusters = new List<T[]>();
-            
-            foreach (var pcmcCluster in pcmcClusters)
+            try
             {
-                var cluster = new List<T>();
-                foreach (var pcmc in pcmcCluster)
+                _clusteringInProgress = true; // Lock micro cluster map during clustering
+
+                _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(50, 2, _microClusterSimilarityFunction);
+                var pcmcClusters = _dbscan.Cluster(_microClusters);
+                var clusters = new List<T[]>();
+
+                foreach (var pcmcCluster in pcmcClusters)
                 {
-                    cluster.AddRange(pcmc.Points);
+                    var cluster = new List<T>();
+                    foreach (var pcmc in pcmcCluster)
+                    {
+                        cluster.AddRange(pcmc.Points);
+                    }
+
+                    clusters.Add(cluster.ToArray());
                 }
-                
-                clusters.Add(cluster.ToArray());
+
+                _clusteringInProgress = false; // Unlock cluster map
+                return clusters.ToArray();
             }
-                        
-            _clusteringInProgress = false;  // Unlock PCMC and OCMC collections
-            return clusters.ToArray();
+            catch (Exception e)
+            {
+                // Throw to return to client as a 400
+                throw e;
+            }
+            finally
+            {
+                _clusteringInProgress = false;
+            }
         }
 
         private void Merge(T p)
@@ -254,7 +271,11 @@ namespace EnvueClustering.TimelessDenStream
             var numDps = _dataStream.Count;
             return
                 $"There are {numMcs} micro clusters, in total {numPointsInClusters} points clustered. " +
-                $"There are {numDps} unclustered points.";
+                $"There are {numDps} unclustered points." +
+                $"State: " +
+                $"    _clusteringInProgress: {_clusteringInProgress}" +
+                $"    _userTerminated:       {_userTerminated}" +
+                $"    _dataStream (isNull)   {_dataStream == null}";
         }
     }
 }

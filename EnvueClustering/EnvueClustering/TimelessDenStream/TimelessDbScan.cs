@@ -46,9 +46,9 @@ namespace EnvueClustering.TimelessDenStream
         {
             var dataArr = dataStream.ToArray();
             if (dataArr == null)
-                throw new EnvueArgumentException("Data stream provided was null.");
+                throw new EnvueArgumentException("Data stream provided to DBSCAN was null.");
             if (dataArr.Length == 0)
-                throw new EnvueArgumentException("Data stream is empty.");
+                throw new EnvueArgumentException("No micro clusters available, aborting DBSCAN clustering.");
             if (dataArr.Count() < 2)
                 return new [] {dataArr};  // Only one element, only one cluster :) 
 

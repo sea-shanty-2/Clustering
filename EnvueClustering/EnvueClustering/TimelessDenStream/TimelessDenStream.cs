@@ -61,6 +61,8 @@ namespace EnvueClustering.TimelessDenStream
 
         public void Add(T dataPoint)
         {
+            if (dataPoint.Id == null)
+                throw new ArgumentException("Cannot add a broadcast with a NULL id.");
             _dataStream.Enqueue(dataPoint);
         }
 
@@ -232,6 +234,27 @@ namespace EnvueClustering.TimelessDenStream
 
             cluster.Points.Remove(p);
             return false;
+        }
+
+        public string Clear()
+        {
+            var mcs = _microClusters.Count;
+            var dps = _dataStream.Count;
+            
+            _microClusters.Clear();
+            _dataStream.Clear();
+
+            return $"Cleared {mcs} micro clusters and {dps} unclustered points.";
+        }
+
+        public string Statistics()
+        {
+            var numPointsInClusters = _microClusters.Select(mc => mc.Points.Count).Sum();
+            var numMcs = _microClusters.Count;
+            var numDps = _dataStream.Count;
+            return
+                $"There are {numMcs} micro clusters, in total {numPointsInClusters} points clustered. " +
+                $"There are {numDps} unclustered points.";
         }
     }
 }

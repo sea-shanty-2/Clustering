@@ -10,6 +10,17 @@ jobs:
       - run: dotnet build EnvueClustering/EnvueClustering.sln
       - run: dotnet test --no-build EnvueClustering/EnvueClustering.Tests
 
+  integration_test:
+    docker:
+      - image: microsoft/dotnet:sdk
+    steps:
+      - checkout
+      - run: find .
+      - run: docker build -t envue/clustering .
+      - run: docker run --rm -p 5000:5000 envue/clustering
+      - run: sleep 6
+      - run: dotnet test --no-build EnvueClustering/EnvueClusteringAPI.Tests
+
   deploy:
     machine:
       enabled: true
@@ -24,6 +35,12 @@ workflows:
   build-and-deploy:
     jobs:
       - build
+      - integration_test:
+         requires:
+           - build
+         filters:
+           branches:
+             only: testing-integration
       - deploy:
          requires:
            - build

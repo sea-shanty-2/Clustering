@@ -20,6 +20,7 @@ jobs:
       - run: dotnet build EnvueClustering/EnvueClustering.sln
       - run: dotnet run --project EnvueClustering/EnvueClusteringAPI/ > ./api_output 2>&1 &
       - run: sleep 6
+      - run: find .
       - run: cat ./api_output
       - run: dotnet test --no-build EnvueClustering/EnvueClusteringAPI.Tests
 

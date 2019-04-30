@@ -43,6 +43,7 @@ namespace EnvueClustering.ClusteringBase
             return EuclideanDistance(u.Center(time), v.Center(time));
         }
 
+        
         /// <summary>
         /// Returns the distance (in metres) between two geospatial points defined
         /// by their longitude and latitude.
@@ -53,20 +54,14 @@ namespace EnvueClustering.ClusteringBase
         public static float Haversine(IGeospatial u, IGeospatial v)
         {
             var R = 6371e3; // Earth radius in metres
-            var uLat = DegreesToRadians(u.Latitude);
-            var vLat = DegreesToRadians(v.Latitude);
-            var deltaLat = DegreesToRadians(v.Latitude - u.Latitude);
-            var deltaLon = DegreesToRadians(v.Longitude - v.Latitude);
-
-            var a = Math.Sin(deltaLat / 2) * Math.Sin(deltaLat / 2) +
-                    Math.Cos(uLat) * Math.Cos(vLat) *
-                    Math.Sin(deltaLon / 2) * Math.Sin(deltaLon / 2);
-
-            var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-            return (float) (R * c);
+            var lat = DegreesToRadians(v.Latitude - u.Latitude);
+            var lng = DegreesToRadians(v.Longitude - u.Longitude);
+            var h1 = Math.Sin(lat / 2) * Math.Sin(lat / 2) +
+                     Math.Cos(DegreesToRadians(u.Latitude)) * Math.Cos(DegreesToRadians(v.Latitude)) *
+                     Math.Sin(lng / 2) * Math.Sin(lng / 2);
+            var h2 = 2 * Math.Asin(Math.Min(1, Math.Sqrt(h1)));
+            return (float) (R * h2);
         }
-        
         
         /// <summary>
         /// Returns the distance (in metres) between the centres of two micro clusters
@@ -77,30 +72,19 @@ namespace EnvueClustering.ClusteringBase
         /// <param name="time">The time at which to evaluate the centres of the micro clusters.</param>
         /// <typeparam name="T">The type of the data objects.</typeparam>
         /// <returns></returns>
-        public static float Haversine<T>(
-            UntimedMicroCluster<T> u, UntimedMicroCluster<T> v) where T : IGeospatial, ITransformable<T>
+        public static float Haversine<T>(UntimedMicroCluster<T> u, UntimedMicroCluster<T> v) where T : IGeospatial, ITransformable<T>
         {
             return Haversine(u.Center, v.Center);
         }
 
-        /// <summary>
-        /// Returns the distance (in metres) between the centres of two micro clusters
-        /// defined for data objects that implement both IGeospatial and ITransformable.
-        /// </summary>
-        /// <param name="u">First micro cluster.</param>
-        /// <param name="v">Second micro cluster.</param>
-        /// <param name="time">The time at which to evaluate the centres of the micro clusters.</param>
-        /// <typeparam name="T">The type of the data objects.</typeparam>
-        /// <returns></returns>
-        public static float Haversine<T>(
-            CoreMicroCluster<T> u, CoreMicroCluster<T> v, int time) where T : IGeospatial, ITransformable<T>
+        public static float ToRadians(this float val)
         {
-            return Haversine(u.Center(time), v.Center(time));
+            return (float) (Math.PI / 180.0 * val);
         }
 
         private static double DegreesToRadians(double angle)
         {
-            return Math.PI * angle / 180.0;
+            return (Math.PI / 180.0) * angle;
         }
 
         /// <summary>

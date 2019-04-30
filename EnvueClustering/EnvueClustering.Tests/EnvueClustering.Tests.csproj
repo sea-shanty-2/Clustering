@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\EnvueClusteringAPI\EnvueClusteringAPI.csproj" />
         <ProjectReference Include="..\EnvueClustering\EnvueClustering.csproj" />
     </ItemGroup>
 

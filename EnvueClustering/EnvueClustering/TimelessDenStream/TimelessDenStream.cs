@@ -164,12 +164,23 @@ namespace EnvueClustering.TimelessDenStream
                     "Cannot cluster without maintenance.");
             }
 
-            Console.WriteLine($"We have {_microClusters.Count} MCs.");
+            // Lock micro cluster map during clustering, force merge the remaining points
+            _clusteringInProgress = true; 
+
+            while (!_dataStream.IsEmpty)
+            {
+                var successfulDequeue = _dataStream.TryDequeue(out var p);
+                if (!successfulDequeue)
+                    continue;
+                
+                // Merge the dataPoint into the micro cluster map
+                Merge(p);
+            }
+
             try
             {
-                _clusteringInProgress = true; // Lock micro cluster map during clustering
-
                 _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(50, 2, _microClusterSimilarityFunction);
+                
                 var pcmcClusters = _dbscan.Cluster(_microClusters);
                 var clusters = new List<T[]>();
 
@@ -200,18 +211,19 @@ namespace EnvueClustering.TimelessDenStream
 
         private void Merge(T p)
         {
+            
+            if (_microClusters.Count == 0)
+            {
+                // Create a new micro cluster, add to the cluster map
+                _microClusters.Add(new UntimedMicroCluster<T>(
+                    new [] {p}, _pointSimilarityFunction));
+                return;
+            }
+
             // Sort micro clusters by distance to p
             _microClusters.Sort((u, v) =>
                 _pointSimilarityFunction(u.Center, p)
                     .CompareTo(_pointSimilarityFunction(v.Center, p)));
-
-            if (_microClusters.Count == 0)
-            {
-                Console.WriteLine($"Creating new MC with p.");
-                // Create a new micro cluster, add to the cluster map
-                _microClusters.Add(new UntimedMicroCluster<T>(
-                    new [] {p}, _pointSimilarityFunction));
-            }
 
             var closestMicroCluster = _microClusters.First();
             
@@ -221,13 +233,10 @@ namespace EnvueClustering.TimelessDenStream
             
             if (!successfulInsert)
             {
-                Console.WriteLine($"Creating new MC with p.");
                 // Create a new micro cluster, add to the cluster map
                 _microClusters.Add(new UntimedMicroCluster<T>(
                     new [] {p}, _pointSimilarityFunction));
             }
-
-            Console.WriteLine($"Merged p into existing MC.");
         }
         
         /// <summary>

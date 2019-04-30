@@ -16,8 +16,8 @@ jobs:
     steps:
       - checkout
       - run: find .
-      - run: dotnet restore EnvueClustering/EnvueClusteringAPI.sln
-      - run: dotnet build EnvueClustering/EnvueClusteringAPI.sln
+      - run: dotnet restore EnvueClustering/EnvueClustering.sln
+      - run: dotnet build EnvueClustering/EnvueClusteringAPI/EnvueClusteringAPI.csproj
       - run: dotnet run --project EnvueClustering/EnvueClusteringAPI/
       - run: sleep 6
       - run: dotnet test --no-build EnvueClustering/EnvueClusteringAPI.Tests

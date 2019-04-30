@@ -16,8 +16,9 @@ jobs:
     steps:
       - checkout
       - run: find .
-      - run: docker build -t envue/clustering .
-      - run: docker run --rm -p 5000:5000 envue/clustering
+      - run: dotnet restore EnvueClustering/EnvueClusteringAPI.sln
+      - run: dotnet build EnvueClustering/EnvueClusteringAPI.sln
+      - run: dotnet run --project EnvueClustering/EnvueClusteringAPI/
       - run: sleep 6
       - run: dotnet test --no-build EnvueClustering/EnvueClusteringAPI.Tests
 

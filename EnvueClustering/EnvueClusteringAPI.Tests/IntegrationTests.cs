@@ -55,14 +55,23 @@ namespace EnvueClusteringAPI.Tests
         }
 
         [Test]
-        public async Task DataAdd_OnePoint_OnePoint()
+        public async Task DataAdd_OnePoint_OK()
         {
             HttpResponseMessage response = await AddStream();
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Test]
-        public async Task ClusteringOneStream_AddAndCluster_OnePoint()
+        public async Task ClusteringEvents_NoPoints_BadRequest()
+        {
+            HttpResponseMessage response = await _client.GetAsync("clustering/events");
+            
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.AreEqual("\"No micro clusters available, aborting DBSCAN clustering.\"", await response.Content.ReadAsStringAsync());
+        }
+
+        [Test]
+        public async Task ClusteringEvent_OnePoint_OnePoint()
         {
             await AddStream();
         
@@ -73,15 +82,21 @@ namespace EnvueClusteringAPI.Tests
         }
 
         [Test]
-        public async Task ClusteringOneStream_AddAndRemoveAndCluster_ZeroPoints()
+        public async Task ClusteringEvent_AddAndRemoveOnePoint_BadRequest()
         {
             await AddStream();
             await RemoveStream();
 
             HttpResponseMessage response = await _client.GetAsync("clustering/events");
             
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.AreEqual("[]", await response.Content.ReadAsStringAsync());
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.AreEqual("\"No micro clusters available, aborting DBSCAN clustering.\"", await response.Content.ReadAsStringAsync());
+        }
+
+        [TearDown]
+        public async Task ClearData()
+        {
+            await _client.GetAsync("data/clear");
         }
     }
 }

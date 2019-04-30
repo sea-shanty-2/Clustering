@@ -18,8 +18,9 @@ jobs:
       - run: find .
       - run: dotnet restore EnvueClustering/EnvueClustering.sln
       - run: dotnet build EnvueClustering/EnvueClustering.sln
-      - run: dotnet run --project EnvueClustering/EnvueClusteringAPI/ &
+      - run: dotnet run --project EnvueClustering/EnvueClusteringAPI/ > api_output 2>&1 &
       - run: sleep 6
+      - run: cat api_output
       - run: dotnet test --no-build EnvueClustering/EnvueClusteringAPI.Tests
 
   deploy:

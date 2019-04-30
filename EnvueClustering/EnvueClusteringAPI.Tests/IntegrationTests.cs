@@ -12,13 +12,15 @@ namespace EnvueClusteringAPI.Tests
 {
     public class StreamRequest
     {
+        public string id { get; }
         public int longitude { get; }
         public int latitude { get; }
         public int[] streamDescription { get; }
         public int timeStamp { get; }
         
-        public StreamRequest(int longitude, int latitude, int[] streamDescription, int timestamp)
+        public StreamRequest(string id, int longitude, int latitude, int[] streamDescription, int timestamp)
         {
+            this.id = id;
             this.longitude = longitude;
             this.latitude = latitude;
             this.streamDescription = streamDescription;
@@ -29,7 +31,7 @@ namespace EnvueClusteringAPI.Tests
     [TestFixture]
     public class IntegrationTests
     {
-        private StreamRequest _stream = new StreamRequest(10, 20, new int[] {0, 1, 0}, 0);
+        private readonly StreamRequest _stream = new StreamRequest("TestStream", 10, 20, new[] {0, 1, 0}, 0);
         
         private HttpClient _client;
 
@@ -38,9 +40,9 @@ namespace EnvueClusteringAPI.Tests
             return await _client.PostAsync("data/add", new StringContent(JsonConvert.SerializeObject
                 (new List<StreamRequest> {_stream}), Encoding.UTF8, "application/json"));
         }
-        private async Task<HttpResponseMessage> RemoveStream()
+        private async Task RemoveStream()
         {
-            return await _client.PostAsync("data/remove", new StringContent(JsonConvert.SerializeObject
+            await _client.PostAsync("data/remove", new StringContent(JsonConvert.SerializeObject
                 (_stream), Encoding.UTF8, "application/json"));
         }
 

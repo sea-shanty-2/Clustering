@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using EnvueClustering.ClusteringBase;
-using EnvueClustering.Exceptions;
 using EnvueClustering.TimelessDenStream;
 using EnvueClusteringAPI.Models;
 using NUnit.Framework;

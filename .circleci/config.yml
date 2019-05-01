@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  test:
     docker:
       - image: microsoft/dotnet:sdk
     steps:
@@ -38,10 +38,10 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build
+      - test
       - integration_test:
          requires:
-           - build
+           - test
          filters:
            branches:
              only:

@@ -128,7 +128,6 @@ namespace EnvueClustering.TimelessDenStream
             _terminate = () =>
             {
                 _userTerminated = true;
-                _dataStream = null;
                 maintainClusterMapThread.Wait();
             };  // Return an action to force the thread to terminate
 

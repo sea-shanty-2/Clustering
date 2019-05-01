@@ -73,6 +73,7 @@ namespace EnvueClustering.Tests
             ds.Add(streamers);
             var mcs = ds.MicroClusters;
             Assert.That(mcs, Has.Exactly(1).Items);
+            
         }
     }
 }

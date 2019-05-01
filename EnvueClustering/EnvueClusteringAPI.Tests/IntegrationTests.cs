@@ -4,56 +4,40 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using EnvueClusteringAPI.Models;
+using Newtonsoft.Json.Serialization;
 
 namespace EnvueClusteringAPI.Tests
 {
-    public class StreamRequest
-    {
-        public string id { get; }
-        public int longitude { get; }
-        public int latitude { get; }
-        public int[] streamDescription { get; }
-        public int timeStamp { get; }
-        
-        public StreamRequest(string id, int longitude, int latitude, int[] streamDescription, int timestamp)
-        {
-            this.id = id;
-            this.longitude = longitude;
-            this.latitude = latitude;
-            this.streamDescription = streamDescription;
-            timeStamp = timestamp;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is StreamRequest other && (id == other.id &&
-                                                  longitude == other.longitude &&
-                                                  latitude == other.latitude &&
-                                                  streamDescription == other.streamDescription &&
-                                                  timeStamp == other.timeStamp);
-        }
-    }
-    
     [TestFixture]
     public class IntegrationTests
     {
-        private readonly StreamRequest _stream = new StreamRequest("TestStream", 10, 20, new[] {0, 1, 0}, 0);
+        private readonly Streamer _streamer = new Streamer(10, 20, new[] {0f, 1f, 0f}, 0, "Test");
         private readonly string _clusterResult = "[[{\"longitude\": 10,\"latitude\": 20,\"streamDescription\":[0,1,0],\"id\": \"TestStream\",\"timeStamp\": 0}]]";
+        private readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings() {ContractResolver = new CamelCasePropertyNamesContractResolver()};
         
         private HttpClient _client;
 
-        private async Task<HttpResponseMessage> AddStream()
+        private async Task<HttpResponseMessage> AddStreamer()
         {
+            string test = JsonConvert.SerializeObject
+                (new List<Streamer> {_streamer}, Formatting.None, _jsonSettings);
+            
             return await _client.PostAsync("data/add", new StringContent(JsonConvert.SerializeObject
-                (new List<StreamRequest> {_stream}), Encoding.UTF8, "application/json"));
+                (new List<Streamer> {_streamer}, Formatting.None, _jsonSettings), Encoding.UTF8, "application/json"));
         }
-        private async Task RemoveStream()
+        private async Task RemoveStreamer()
         {
+            string test = JsonConvert.SerializeObject
+                (_streamer, Formatting.None, _jsonSettings);
+            
             await _client.PostAsync("data/remove", new StringContent(JsonConvert.SerializeObject
-                (_stream), Encoding.UTF8, "application/json"));
+                (_streamer, Formatting.None, _jsonSettings), Encoding.UTF8, "application/json"));
         }
 
         [SetUp]
@@ -65,9 +49,29 @@ namespace EnvueClusteringAPI.Tests
         }
 
         [Test]
+        public void JsonTest()
+        {
+            string json = JsonConvert.SerializeObject(_streamer, Formatting.None, _jsonSettings);
+            JObject back = JsonConvert.DeserializeObject(json) as JObject;
+
+            string id = back["id"].ToString();
+            int longitude = int.Parse(back["longitude"].ToString());
+            int latitude = int.Parse(back["latitude"].ToString());
+            
+            string[] str = Regex.Replace(back["streamDescription"].ToString(), @"\[*\]*\n* *", "").Split(",");
+            float[] floats = Array.ConvertAll(str, float.Parse);
+
+            int timeStamp = int.Parse(back["timeStamp"].ToString());
+
+            Streamer stream = new Streamer(longitude, latitude, floats, timeStamp, id);
+
+            Assert.AreEqual(_streamer.ToString(), stream.ToString());
+        }
+
+        [Test]
         public async Task DataAdd_OnePoint_OK()
         {
-            HttpResponseMessage response = await AddStream();
+            HttpResponseMessage response = await AddStreamer();
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
@@ -83,18 +87,34 @@ namespace EnvueClusteringAPI.Tests
         [Test]
         public async Task ClusteringEvent_OnePoint_OnePoint()
         {
-            await AddStream();
+            await AddStreamer();
             HttpResponseMessage response = await _client.GetAsync("clustering/events");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.IsTrue(_stream.Equals(JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync()) as StreamRequest));
+
+            string test = await response.Content.ReadAsStringAsync();
+            
+            JObject json = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync(), _jsonSettings) as JObject;
+
+            string id = json["id"].ToString();
+            int longitude = int.Parse(json["longitude"].ToString());
+            int latitude = int.Parse(json["latitude"].ToString());
+            
+            string[] str = Regex.Replace(json["streamDescription"].ToString(), @"\[*\]*\n* *", "").Split(",");
+            float[] floats = Array.ConvertAll(str, float.Parse);
+
+            int timeStamp = int.Parse(json["timeStamp"].ToString());
+
+            Streamer stream = new Streamer(longitude, latitude, floats, timeStamp, id);
+
+            Assert.AreEqual(_streamer.ToString(), stream.ToString());
         }
 
         [Test]
         public async Task ClusteringEvent_AddAndRemoveOnePoint_BadRequest()
         {
-            await AddStream();
-            await RemoveStream();
+            await AddStreamer();
+            await RemoveStreamer();
 
             HttpResponseMessage response = await _client.GetAsync("clustering/events");
             

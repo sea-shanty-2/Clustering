@@ -13,6 +13,17 @@ namespace EnvueClustering.Tests
     [TestFixture]
     public class ClusteringTests
     {
+        
+        TimelessDenStream<Streamer> DENSTREAM = new TimelessDenStream<Streamer>(Similarity.Haversine, Similarity.Haversine);
+
+        [SetUp]
+        public void SetUp()
+        {
+            DENSTREAM.Terminate();
+            DENSTREAM.Clear();
+            DENSTREAM.MaintainClusterMap();
+        }
+
         [Test]
         public void SomeTest()
         {
@@ -32,15 +43,45 @@ namespace EnvueClustering.Tests
                 streamers.Add(new Streamer(lon, lat, streamDescription, timestamp, id));
             }
             
-            TimelessDenStream<Streamer> ds = new TimelessDenStream<Streamer>(Similarity.Haversine, Similarity.Haversine);
             foreach (var streamer in streamers)
             {
-                ds.Add(streamer);
+                DENSTREAM.Add(streamer);
             }
             
             
-            var clusters = ds.Cluster();
+            var clusters = DENSTREAM.Cluster();
+            DENSTREAM.Terminate();
             Assert.That(clusters, Is.Not.Empty);
+        }
+
+        [Test]
+        public void Cluster_SameTwoPoints_OneCluster()
+        {
+            // [{"longitude":10.0,"latitude":20.0,"streamDescription":[0.0,1.0,0.0],"id":"Test","timeStamp":0}]
+            var streamers = new[]
+            {
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test"),
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test")
+            };
+            
+            DENSTREAM.Add(streamers);
+            var clusters = DENSTREAM.Cluster();
+            Assert.That(clusters, Has.Exactly(1).Items);
+        }
+        
+        [Test]
+        public void Cluster_SameTwoPoints_OneMicroCluster()
+        {
+            // [{"longitude":10.0,"latitude":20.0,"streamDescription":[0.0,1.0,0.0],"id":"Test","timeStamp":0}]
+            var streamers = new[]
+            {
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test"),
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test")
+            };
+            
+            DENSTREAM.Add(streamers);
+            var mcs = DENSTREAM.MicroClusters;
+            Assert.That(mcs, Has.Exactly(1).Items);
         }
     }
 }

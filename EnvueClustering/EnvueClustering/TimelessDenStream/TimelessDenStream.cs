@@ -128,7 +128,6 @@ namespace EnvueClustering.TimelessDenStream
             _terminate = () =>
             {
                 _userTerminated = true;
-                _dataStream = null;
                 maintainClusterMapThread.Wait();
             };  // Return an action to force the thread to terminate
 
@@ -179,6 +178,12 @@ namespace EnvueClustering.TimelessDenStream
 
             try
             {
+                // Check if there is only one streamer - if so, just return them
+                if (MicroClusters.Count == 1 && MicroClusters.First().Points.Count == 1)
+                {
+                    return new[] {new[] {MicroClusters.First().Points.First()}};
+                }
+
                 _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(50, 2, _microClusterSimilarityFunction);
                 
                 var pcmcClusters = _dbscan.Cluster(_microClusters);

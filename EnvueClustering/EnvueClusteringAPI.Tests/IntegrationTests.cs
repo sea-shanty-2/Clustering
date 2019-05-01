@@ -4,10 +4,8 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using EnvueClusteringAPI.Models;
 using Newtonsoft.Json.Serialization;
@@ -25,17 +23,11 @@ namespace EnvueClusteringAPI.Tests
 
         private async Task<HttpResponseMessage> AddStreamer()
         {
-            string test = JsonConvert.SerializeObject
-                (new List<Streamer> {_streamer}, Formatting.None, _jsonSettings);
-            
             return await _client.PostAsync("data/add", new StringContent(JsonConvert.SerializeObject
                 (new List<Streamer> {_streamer}, Formatting.None, _jsonSettings), Encoding.UTF8, "application/json"));
         }
         private async Task RemoveStreamer()
         {
-            string test = JsonConvert.SerializeObject
-                (_streamer, Formatting.None, _jsonSettings);
-            
             await _client.PostAsync("data/remove", new StringContent(JsonConvert.SerializeObject
                 (_streamer, Formatting.None, _jsonSettings), Encoding.UTF8, "application/json"));
         }
@@ -74,7 +66,7 @@ namespace EnvueClusteringAPI.Tests
         }
 
         [Test]
-        public async Task ClusteringEvent_TwoPoints_OneCluster()
+        public async Task ClusteringEvent_SameTwoPoints_OneCluster()
         {
             await AddStreamer();
             await AddStreamer();
@@ -82,11 +74,11 @@ namespace EnvueClusteringAPI.Tests
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            var MCs = JsonConvert.DeserializeObject<List<List<Streamer>>>(await response.Content.ReadAsStringAsync(), _jsonSettings);
+            var clusters = JsonConvert.DeserializeObject<List<List<Streamer>>>(await response.Content.ReadAsStringAsync(), _jsonSettings);
 
-            Assert.AreEqual(1, MCs.Count);
-            //Assert.AreEqual(_streamer.ToString(), streamers[0].ToString());
-            //Assert.AreEqual(_streamer.ToString(), streamers[1].ToString());
+            Assert.AreEqual(1, clusters.Count);
+            Assert.AreEqual(_streamer.ToString(), clusters[0][0].ToString());
+            Assert.AreEqual(_streamer.ToString(), clusters[0][1].ToString());
         }
 
         [Test]

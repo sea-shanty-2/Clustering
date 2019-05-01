@@ -21,19 +21,7 @@ namespace EnvueClustering.Tests
         }
 
         [Test]
-        public void AddEnumerable_AddOnePoint_OneCluster()
-        {
-            List<Streamer> streamers = new List<Streamer>();
-            streamers.Add(new Streamer(10, 20, new float[]{1, 0, 1}, 0, "Test"));
-            _denStream.Add(streamers);
-
-            _denStream.Cluster();
-
-            Assert.AreEqual(1, _denStream.MicroClusters.Count);
-        }
-
-        [Test]
-        public void AddEnumerable_AddTwoPoints_OneCluster()
+        public void AddEnumerable_SameTwoPoints_OneMicroCluster()
         {
             List<Streamer> streamers = new List<Streamer>();
             streamers.Add(new Streamer(10, 20, new float[]{1, 0, 1}, 0, "Test"));
@@ -46,7 +34,7 @@ namespace EnvueClustering.Tests
         }
         
         [Test]
-        public void AddEnumerable_AddTwoPoints_TwoClusters()
+        public void AddEnumerable_DifferentTwoPoints_TwoMicroClusters()
         {
             List<Streamer> streamers = new List<Streamer>();
             streamers.Add(new Streamer(10, 20, new float[]{1, 0, 1}, 0, "Test"));
@@ -57,9 +45,21 @@ namespace EnvueClustering.Tests
             
             Assert.AreEqual(2, _denStream.MicroClusters.Count);
         }
+        
+        [Test]
+        public void AddEnumerable_AddOnePoint_OneMicroCluster()
+        {
+            List<Streamer> streamers = new List<Streamer>();
+            streamers.Add(new Streamer(10, 20, new float[]{1, 0, 1}, 0, "Test"));
+            
+            _denStream.Add(streamers);
+            _denStream.Cluster();
+
+            Assert.AreEqual(1, _denStream.MicroClusters.Count);
+        }
 
         [Test]
-        public void AddSingle_AddOnePoint_NoClusters()
+        public void AddSingle_AddOnePoint_OneCluster()
         {
             _denStream.Add(new Streamer(10, 20, new float[]{1, 0, 1}, 0, "Test"));
             _denStream.Cluster();

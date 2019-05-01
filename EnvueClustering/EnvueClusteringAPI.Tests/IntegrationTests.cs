@@ -94,12 +94,17 @@ namespace EnvueClusteringAPI.Tests
         }
 
         [Test]
-        public async Task ClusteringEvent_OnePoint_BadRequest()
+        public async Task ClusteringEvent_OnePoint_OneCluster()
         {
             await AddStreamer();
             HttpResponseMessage response = await _client.GetAsync("clustering/events");
 
-            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            
+            var clusters = JsonConvert.DeserializeObject<List<List<Streamer>>>(await response.Content.ReadAsStringAsync(), _jsonSettings);
+
+            Assert.AreEqual(1, clusters.Count);
+            Assert.AreEqual(_streamer.ToString(), clusters[0][0].ToString());
         }
 
         [TearDown]

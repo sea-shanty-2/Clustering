@@ -41,31 +41,20 @@ namespace EnvueClusteringAPI.Tests
         }
 
         [SetUp]
-        public void InitializeClient()
+        public async Task InitializeClient()
         {
             _client = new HttpClient {BaseAddress = new Uri("http://localhost:5000/")};
             _client.DefaultRequestHeaders.Accept.Clear();
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            await _client.GetAsync("data/clear");
         }
 
         [Test]
         public void JsonTest()
         {
-            string json = JsonConvert.SerializeObject(_streamer, Formatting.None, _jsonSettings);
-            JObject back = JsonConvert.DeserializeObject(json) as JObject;
-
-            string id = back["id"].ToString();
-            int longitude = int.Parse(back["longitude"].ToString());
-            int latitude = int.Parse(back["latitude"].ToString());
-            
-            string[] str = Regex.Replace(back["streamDescription"].ToString(), @"\[*\]*\n* *", "").Split(",");
-            float[] floats = Array.ConvertAll(str, float.Parse);
-
-            int timeStamp = int.Parse(back["timeStamp"].ToString());
-
-            Streamer stream = new Streamer(longitude, latitude, floats, timeStamp, id);
-
-            Assert.AreEqual(_streamer.ToString(), stream.ToString());
+            string serialized = JsonConvert.SerializeObject(_streamer, Formatting.None, _jsonSettings);
+            Streamer streamer = JsonConvert.DeserializeObject<Streamer>(serialized);
+            Assert.AreEqual(_streamer.ToString(), streamer.ToString());
         }
 
         [Test]
@@ -85,29 +74,19 @@ namespace EnvueClusteringAPI.Tests
         }
 
         [Test]
-        public async Task ClusteringEvent_OnePoint_OnePoint()
+        public async Task ClusteringEvent_TwoPoints_OneCluster()
         {
+            await AddStreamer();
             await AddStreamer();
             HttpResponseMessage response = await _client.GetAsync("clustering/events");
 
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
 
-            string test = await response.Content.ReadAsStringAsync();
-            
-            JObject json = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync(), _jsonSettings) as JObject;
+            var MCs = JsonConvert.DeserializeObject<List<List<Streamer>>>(await response.Content.ReadAsStringAsync(), _jsonSettings);
 
-            string id = json["id"].ToString();
-            int longitude = int.Parse(json["longitude"].ToString());
-            int latitude = int.Parse(json["latitude"].ToString());
-            
-            string[] str = Regex.Replace(json["streamDescription"].ToString(), @"\[*\]*\n* *", "").Split(",");
-            float[] floats = Array.ConvertAll(str, float.Parse);
-
-            int timeStamp = int.Parse(json["timeStamp"].ToString());
-
-            Streamer stream = new Streamer(longitude, latitude, floats, timeStamp, id);
-
-            Assert.AreEqual(_streamer.ToString(), stream.ToString());
+            Assert.AreEqual(1, MCs.Count);
+            //Assert.AreEqual(_streamer.ToString(), streamers[0].ToString());
+            //Assert.AreEqual(_streamer.ToString(), streamers[1].ToString());
         }
 
         [Test]
@@ -120,6 +99,15 @@ namespace EnvueClusteringAPI.Tests
             
             Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
             Assert.AreEqual("\"No micro clusters available, aborting DBSCAN clustering.\"", await response.Content.ReadAsStringAsync());
+        }
+
+        [Test]
+        public async Task ClusteringEvent_OnePoint_BadRequest()
+        {
+            await AddStreamer();
+            HttpResponseMessage response = await _client.GetAsync("clustering/events");
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [TearDown]

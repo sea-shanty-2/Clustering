@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using EnvueClustering.ClusteringBase;
+using EnvueClustering.Exceptions;
 using EnvueClustering.TimelessDenStream;
 using EnvueClusteringAPI.Models;
 using NUnit.Framework;
@@ -47,15 +48,15 @@ namespace EnvueClustering.Tests
         }
         
         [Test]
-        public void AddEnumerable_AddOnePoint_OneMicroCluster()
+        public void AddEnumerable_AddOnePoint_ArgumentExceptionThrown()
         {
             List<Streamer> streamers = new List<Streamer>();
             streamers.Add(new Streamer(10, 20, new float[]{1, 0, 1}, 0, "Test"));
             
             _denStream.Add(streamers);
-            _denStream.Cluster();
 
-            Assert.AreEqual(1, _denStream.MicroClusters.Count);
+            EnvueArgumentException exception = Assert.Throws<EnvueArgumentException>(() => _denStream.Cluster());
+            Assert.AreEqual("No micro clusters available, aborting DBSCAN clustering.", exception.Message);
         }
 
         [Test]

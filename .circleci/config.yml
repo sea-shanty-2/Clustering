@@ -36,7 +36,7 @@ jobs:
 
 workflows:
   version: 2
-  build-and-deploy:
+  test-and-deploy:
     jobs:
       - test
       - integration_test:

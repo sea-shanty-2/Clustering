@@ -73,7 +73,23 @@ namespace EnvueClustering.Tests
             ds.Add(streamers);
             var mcs = ds.MicroClusters;
             Assert.That(mcs, Has.Exactly(1).Items);
+        }
+
+        [Test]
+        public void Cluster_TwoDifferentPoints_OneMicroCluster()
+        {
+            var ds = new TimelessDenStream<Streamer>(Similarity.Haversine, Similarity.Haversine);
             
+            // Distance between these is small enough to cluster into one MC
+            var streamers = new[]
+            {
+                new Streamer(20.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test"),
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test")
+            };
+            
+            ds.Add(streamers);
+            var mcs = ds.MicroClusters;
+            Assert.That(mcs, Has.Exactly(1).Items);
         }
     }
 }

@@ -1,0 +1,51 @@
+[
+  {
+    "id":"mikkel1",
+    "longitude": 9.99,
+    "latitude": 57.046707,
+    "streamDescription": [1.2, 1.4, 1.5],
+    "timeStamp": 0
+  },
+  {
+    "id":"mikkel2",
+    "longitude": 9.99,
+    "latitude": 57.046707,
+    "streamDescription": [1.2, 1.4, 1.5],
+    "timeStamp": 0
+  },
+  {
+    "id":"mikkel3",
+    "longitude": 9.99,
+    "latitude": 57.046707,
+    "streamDescription": [1.2, 1.4, 1.5],
+    "timeStamp": 0
+  },
+  {
+    "id":"mikkel4",
+    "longitude": 9.99,
+    "latitude": 57.046707,
+    "streamDescription": [1.2, 1.4, 1.5],
+    "timeStamp": 0
+  },
+  {
+    "id":"mikkel5",
+    "longitude": 9.99,
+    "latitude": 57.046707,
+    "streamDescription": [1.2, 1.4, 1.5],
+    "timeStamp": 0
+  },
+  {
+    "id":"mikkel6",
+    "longitude": 9.99,
+    "latitude": 57.046707,
+    "streamDescription": [1.2, 1.4, 1.5],
+    "timeStamp": 0
+  },
+  {
+    "id":"mikkel7",
+    "longitude": 9.99,
+    "latitude": 57.046707,
+    "streamDescription": [1.2, 1.4, 1.5],
+    "timeStamp": 0
+  }
+]

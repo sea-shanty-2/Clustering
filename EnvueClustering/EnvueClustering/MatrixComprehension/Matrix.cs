@@ -68,13 +68,6 @@ namespace EnvueClustering
             _rows = matrix.GetUpperBound(0) + 1;
             _columns = matrix.GetUpperBound(1) + 1;
 
-            if (_rows == 1 && _columns == 1)
-            {
-                throw new ArgumentException(
-                    "Cannot represent an empty multi-dimensional array as a matrix.");
-            }
-
-
             _m = matrix;
         }
         

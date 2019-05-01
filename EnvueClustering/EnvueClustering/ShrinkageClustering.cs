@@ -52,7 +52,19 @@ namespace EnvueClustering
         /// <returns></returns>
         private Matrix ShrinkClusters(IEnumerable<T> dataStream)
         {
-            var S = Matrix.SimilarityMatrix(dataStream, _similarityFunction, normalize: true, inverse: true);
+            var dataArr = dataStream.ToArray();
+
+            Console.WriteLine($"Received: {dataArr.Pretty()}");
+
+            if (dataArr.Length == 1)
+            {
+                return new Matrix(new[,]
+                {
+                    { 1f }
+                });
+            }
+
+            var S = Matrix.SimilarityMatrix(dataArr, _similarityFunction, normalize: true, inverse: true);
             var SBar = 1 - 2 * S;
             var A = Matrix.RandomAssignmentMatrix(S.Shape[0], _k);
             var N = S.Count();

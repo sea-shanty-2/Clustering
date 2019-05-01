@@ -64,7 +64,7 @@ namespace EnvueClustering.TimelessDenStream
                     visitedPoints.Add(p);
                     var neighbours = GetNeighbours(p, dataArr);
 
-                    if (neighbours.Length >= _minPts)
+                    if (neighbours.Length >= _minPts - 1)
                     {
                         // This is a potential cluster. 
                         // For every point in this neighbourhood, merge/union *their*

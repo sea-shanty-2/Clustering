@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using EnvueClustering.ClusteringBase;
@@ -83,5 +84,41 @@ namespace EnvueClustering.Tests
             var mcs = DENSTREAM.MicroClusters;
             Assert.That(mcs, Has.Exactly(1).Items);
         }
+
+        [Test]
+        public void Cluster_TwoDifferentPoints_NonEmptyClusters()
+        {
+            var streamers = new[]
+            {
+                new Streamer(9.99f, 57.046707f, new[] {1.2f, 1.4f, 1.5f}, 0, "mikkel1"),
+                new Streamer(9.79f, 57.036707f, new[] {1.2f, 1.4f, 1.5f}, 0, "mikkel2")
+            };
+            
+            DENSTREAM.Add(streamers[0]);
+            Thread.Sleep(1000);
+            Assert.That(DENSTREAM.MicroClusters, Has.Exactly(1).Items);
+            Assert.That(DENSTREAM.MicroClusters[0].Points, Has.Exactly(1).Items);
+            DENSTREAM.Add(streamers[1]);
+            Thread.Sleep(1000);
+            Assert.That(DENSTREAM.MicroClusters, Has.Exactly(2).Items);
+            Assert.That(DENSTREAM.MicroClusters[0].Points, Has.Exactly(1).Items);
+
+            var clusters = DENSTREAM.Cluster();
+            Assert.That(clusters, Is.Not.Empty);
+            foreach (var cluster in clusters)
+            {
+                Assert.That(cluster, Is.Not.Empty);
+            }
+            
+            var SHRINKAGE = new ShrinkageClustering<Streamer>(100, 100, Similarity.Haversine);
+
+            foreach (var cluster in clusters)
+            {
+                var scCluster = SHRINKAGE.Cluster(cluster);
+                Assert.That(scCluster, Is.Not.Empty);
+            }
+
+        }
     }
 }
+

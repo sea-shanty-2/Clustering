@@ -1,5 +1,6 @@
 
 using System;
+using EnvueClustering;
 using EnvueClustering.ClusteringBase;
 
 namespace EnvueClusteringAPI.Models
@@ -63,5 +64,10 @@ namespace EnvueClusteringAPI.Models
         }
 
         public int TimeStamp { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Id}: ({Latitude}, {Longitude}) --> {StreamDescription.Pretty()}";
+        }
     }
 }

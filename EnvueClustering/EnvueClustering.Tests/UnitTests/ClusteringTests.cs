@@ -7,6 +7,7 @@ using EnvueClustering.ClusteringBase;
 using EnvueClustering.TimelessDenStream;
 using EnvueClusteringAPI.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace EnvueClustering.Tests
@@ -118,6 +119,31 @@ namespace EnvueClustering.Tests
                 Assert.That(scCluster, Is.Not.Empty);
             }
 
+        }
+
+        [Test]
+        public void Cluster_TwoClosePoints_OneCluster()
+        {
+            dynamic jsonArr =
+                JsonConvert.DeserializeObject(
+                    File.ReadAllText($"../../../two_close_streamers.json")); 
+            
+            var streamers = new List<Streamer>();
+            foreach (var s in jsonArr)
+            {
+                var id = (string)s.id;
+                var lat = (float)s.latitude;
+                var lon = (float)s.longitude;
+                var timestamp = (int)s.timeStamp;
+                var streamDescription = (s.streamDescription as JArray).ToObject<float[]>();
+                
+                streamers.Add(new Streamer(lon, lat, streamDescription, timestamp, id));
+            }
+            
+            DENSTREAM.Add(streamers);
+            Thread.Sleep(1000);
+            var clusters = DENSTREAM.Cluster();
+            Assert.That(clusters, Has.Exactly(1).Items);
         }
     }
 }

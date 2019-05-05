@@ -178,10 +178,10 @@ namespace EnvueClustering.TimelessDenStream
 
             try
             {
-                // Check if there is only one streamer - if so, just return them
-                if (MicroClusters.Count == 1 && MicroClusters.First().Points.Count == 1)
+                // Check if there is less than 10 streamers - if so, just return them
+                if (MicroClusters.Count == 1 && MicroClusters.First().Points.Count < 10)
                 {
-                    return new[] {new[] {MicroClusters.First().Points.First()}};
+                    return new[] {MicroClusters.First().Points.ToArray() };
                 }
 
                 _dbscan = new TimelessDbScan<UntimedMicroCluster<T>>(50, 2, _microClusterSimilarityFunction);
@@ -215,8 +215,7 @@ namespace EnvueClustering.TimelessDenStream
         }
 
         private void Merge(T p)
-        {
-            
+        {            
             if (_microClusters.Count == 0)
             {
                 // Create a new micro cluster, add to the cluster map

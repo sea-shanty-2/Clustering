@@ -18,6 +18,7 @@ namespace EnvueClustering.TimelessDenStream
 
         public List<T> Points { get; }
         public T Center => Points.ElementWiseSum().Divide(Points.Count);
+
         public float Radius => Points.Select(p => _distanceFunction(p, Center)).Sum() / Points.Count;
     }
 }

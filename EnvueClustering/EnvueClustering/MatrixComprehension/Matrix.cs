@@ -491,7 +491,7 @@ namespace EnvueClustering
             var matrix = new Matrix(arr.Length, arr.Length);
             for (var i = 0; i < arr.Length; i++)
             {
-                for (var j = 0; j < i; j++)
+                for (var j = 0; j <= i; j++)
                 {
                     matrix[i, j] = similarityFunction(arr[i], arr[j]);
                 }

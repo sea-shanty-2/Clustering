@@ -64,7 +64,7 @@ namespace EnvueClustering
 
             _k = dataArr.Length / 2 > _k ? _k : dataArr.Length / 2;  // Set k low enough to force points to share clusters
 
-            var S = Matrix.SimilarityMatrix(dataArr, _similarityFunction, normalize: true, inverse: true);
+            var S = Matrix.SimilarityMatrix(dataArr, _similarityFunction, normalize: true, inverse: false);
             var SBar = 1 - (2 * S);
             var A = Matrix.RandomAssignmentMatrix(S.Shape[0], _k);
             var N = S.Count();

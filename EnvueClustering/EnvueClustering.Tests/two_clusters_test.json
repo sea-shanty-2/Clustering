@@ -2,13 +2,7 @@
     {
       "longitude": 9.9217,
       "latitude": 57.0486,
-      "streamDescription": [
-        1,
-        2,
-        3,
-        4,
-        5.1
-      ],
+      "streamDescription": [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       "id": "5ccf0350c16d9400017bcef1",
       "timeStamp": 0
     }
@@ -17,13 +11,7 @@
     {
       "longitude": 9.9217,
       "latitude": 57.0485,
-      "streamDescription": [
-        1,
-        2,
-        3,
-        4,
-        5
-      ],
+      "streamDescription": [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       "id": "5ccf0343c16d9400017bcef0",
       "timeStamp": 0
     }
@@ -32,13 +20,7 @@
     {
       "longitude": 9.9217,
       "latitude": 57.0487,
-      "streamDescription": [
-        1,
-        2,
-        3,
-        4,
-        5.2
-      ],
+      "streamDescription": [1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
       "id": "5ccf0357c16d9400017bcef2",
       "timeStamp": 0
     }
@@ -47,13 +29,7 @@
     {
       "longitude": 9.9217,
       "latitude": 57.0487,
-      "streamDescription": [
-        1,
-        2,
-        3,
-        4,
-        5.1
-      ],
+      "streamDescription": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
       "id": "5ccf0376c16d9400017bcef4",
       "timeStamp": 0
     }
@@ -62,15 +38,17 @@
     {
       "longitude": 9.9217,
       "latitude": 57.055,
-      "streamDescription": [
-        99,
-        99,
-        99,
-        99,
-        99
-      ],
+      "streamDescription": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
       "id": "5ccf036bc16d9400017bcef3",
       "timeStamp": 0
-    }
+    },
+
+  {
+    "longitude": 9.9217,
+    "latitude": 57.055,
+    "streamDescription": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+    "id": "5ccf036bc16d9400017abef3",
+    "timeStamp": 0
+  }
   
 ]

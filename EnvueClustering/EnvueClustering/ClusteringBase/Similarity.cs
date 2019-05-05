@@ -96,7 +96,7 @@ namespace EnvueClustering.ClusteringBase
         public static float Cosine(float[] u, float[] v)
         {
             return u.Dot(v) / 
-                   u.EuclideanLength() * v.EuclideanLength();
+                   (u.EuclideanLength() * v.EuclideanLength());
         }
 
         public static float Cosine<T>(T a, T b) where T : IVectorRepresentable<float[]>

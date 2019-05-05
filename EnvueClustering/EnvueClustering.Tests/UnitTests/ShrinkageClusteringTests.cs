@@ -16,7 +16,7 @@ namespace EnvueClustering.Tests
     [TestFixture]
     public class ShrinkageClusteringTests
     {
-        private IClusterable<Streamer> SC = new ShrinkageClustering<Streamer>(100, 100, Similarity.Cosine);
+        private IClusterable<Streamer> SC = new ShrinkageClustering<Streamer>(100, 1000, Similarity.Cosine);
         [Test]
         public void Cluster_SevenBroadcasters_NotEmptyClusters()
         {
@@ -77,8 +77,8 @@ namespace EnvueClustering.Tests
             }
 
             var clusters = SC.Cluster(streamers);
+
             Assert.That(clusters, Has.Exactly(2).Items);
-            
         }
     }
 }

@@ -162,7 +162,12 @@ namespace EnvueClusteringAPI.Controllers
                 
                 // Cluster on the stream descriptions
                 foreach (var geoCluster in geoClusters)
-                    eventClusters.AddRange(_shrinkageClustering.Cluster(geoCluster));
+                {
+                    if (geoCluster.Length > 10)  // Shrinkage clustering requires a proper data set to function
+                        eventClusters.AddRange(_shrinkageClustering.Cluster(geoCluster));
+                    else 
+                        eventClusters.Add(geoCluster);
+                }
                 
                 return Ok(eventClusters);
                 

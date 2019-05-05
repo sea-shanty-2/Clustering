@@ -34,9 +34,6 @@ namespace EnvueClusteringAPI.Controllers
             _denStream = denStream;
             _shrinkageClustering = new ShrinkageClustering<Streamer>(100, 100, 
                 Similarity.Cosine);
-            
-            
-            
         }
 
         /// <summary>
@@ -212,7 +209,7 @@ namespace EnvueClusteringAPI.Controllers
         {
             try
             {
-                var msg = _denStream.Statistics();
+                var msg = $"V1: {_denStream.Statistics()}";
                 return Ok(msg);
             }
             catch (Exception e)

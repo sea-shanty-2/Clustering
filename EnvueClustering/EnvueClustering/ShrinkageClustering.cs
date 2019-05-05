@@ -54,8 +54,6 @@ namespace EnvueClustering
         {
             var dataArr = dataStream.ToArray();
 
-            Console.WriteLine($"Received: {dataArr.Pretty()}");
-
             if (dataArr.Length == 1)
             {
                 return new Matrix(new[,]
@@ -64,17 +62,15 @@ namespace EnvueClustering
                 });
             }
 
+            _k = dataArr.Length / 2 > _k ? _k : dataArr.Length / 2;  // Set k low enough to force points to share clusters
+
             var S = Matrix.SimilarityMatrix(dataArr, _similarityFunction, normalize: true, inverse: true);
-            var SBar = 1 - 2 * S;
+            var SBar = 1 - (2 * S);
             var A = Matrix.RandomAssignmentMatrix(S.Shape[0], _k);
             var N = S.Count();
 
             foreach (var iteration in _maxIterations.Range())
-            {
-                // Remove empty clusters, update number of columns
-                A = A.DeleteColumns(c => c.Sum() == 0);
-                _k = A.Columns.Count();
-                
+            {   
                 // Permute cluster membership that minimizes loss the most: 
                 // (a) Compute M = ~SA
                 var M = SBar * A;
@@ -84,10 +80,8 @@ namespace EnvueClustering
                 var v = N.Range().Select(i => M[i].Min() - MoA[i].Sum());
 
                 // Check if we converged
-                if (Math.Abs(v.Sum()) < 0.0001)
+                if (Math.Abs(v.Sum()) < 0.000001)
                     break;
-
-                Console.WriteLine(Math.Abs(v.Sum()));
                     
                 // (c) Find the object X with the greatest optimization potential
                 var X = v.ArgMin();
@@ -97,6 +91,10 @@ namespace EnvueClustering
                 
                 A[X] = 0f.Repeat(_k).ToArray();
                 A[X,C] = 1;
+                
+                // Remove empty clusters, update number of columns
+                A = A.DeleteColumns(c => c.Sum() == 0);
+                _k = A.Columns.Count();
             }
 
             return A;

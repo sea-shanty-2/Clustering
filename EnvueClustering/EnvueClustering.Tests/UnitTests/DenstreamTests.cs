@@ -1,86 +1,140 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.TimelessDenStream;
 using EnvueClusteringAPI.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace EnvueClustering.Tests
 {
     [TestFixture]
-    public class DenstreamTests
+    public class ClusteringTests
     {
-        private TimelessDenStream<Streamer> _denStream;
+        
+        TimelessDenStream<Streamer> DENSTREAM = new TimelessDenStream<Streamer>(Similarity.Haversine, Similarity.Haversine);
 
         [SetUp]
-        public void SetupDenstream()
+        public void SetUp()
         {
-            _denStream = new TimelessDenStream<Streamer>(
-                Similarity.Haversine, 
-                Similarity.Haversine);
+            DENSTREAM.Terminate();
+            DENSTREAM.Clear();
+            DENSTREAM.MaintainClusterMap();
         }
         
         [Test]
-        public void AddEnumerable_SameTwoPoints_OneMicroCluster()
+        public void Cluster_OnePoint_OneMicroCluster()
         {
-            List<Streamer> streamers = new List<Streamer>
-            {
-                new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test"),
-                new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test")
-            };
-
-            _denStream.Add(streamers);
+            Streamer streamer = new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test");
             
-            Thread.Sleep(1000);
-            Assert.AreEqual(1, _denStream.MicroClusters.Count);
-        }
-
-        [Test]
-        public void AddEnumerable_CloseTwoPoints_OneMicroCluster()
-        {
-            List<Streamer> streamers = new List<Streamer>
-            {
-                new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test"),
-                new Streamer(10, 22, new float[] {1, 0, 1}, 1, "Test2")
-            };
-
-            _denStream.Add(streamers);
-            
-            Thread.Sleep(1000);
-            Assert.AreEqual(1, _denStream.MicroClusters.Count);
+            DENSTREAM.Add(streamer);
+            var mcs = DENSTREAM.MicroClusters;
+            Assert.That(mcs, Has.Exactly(1).Items);
         }
         
         [Test]
-        public void AddEnumerable_DifferentTwoPoints_TwoMicroClusters()
-        {
-            List<Streamer> streamers = new List<Streamer>();
-            streamers.Add(new Streamer(10, 20, new float[]{1, 0, 1}, 0, "Test"));
-            streamers.Add(new Streamer(0, 100, new float[]{0, 1, 1}, 1, "Test2"));
-            
-            _denStream.Add(streamers);
-            
-            Thread.Sleep(1000);
-            Assert.AreEqual(2, _denStream.MicroClusters.Count);
-        }
-        
-        [Test]
-        public void AddEnumerable_AddOnePoint_OneMicroCluster()
+        public void Cluster_OnePointList_OneMicroCluster()
         {
             List<Streamer> streamers = new List<Streamer> {new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test")};
             
-            _denStream.Add(streamers);
-
-            Thread.Sleep(1000);
-            Assert.AreEqual(1, _denStream.MicroClusters.Count);
+            DENSTREAM.Add(streamers);
+            var mcs = DENSTREAM.MicroClusters;
+            Assert.That(mcs, Has.Exactly(1).Items);
         }
 
         [Test]
-        public void AddSingle_AddOnePoint_OneMicroCluster()
+        public void Cluster_SameTwoPoints_OneCluster()
         {
-            _denStream.Add(new Streamer(10, 20, new float[]{1, 0, 1}, 0, "Test"));
+            // [{"longitude":10.0,"latitude":20.0,"streamDescription":[0.0,1.0,0.0],"id":"Test","timeStamp":0}]
+            var streamers = new[]
+            {
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test"),
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test")
+            };
             
+            DENSTREAM.Add(streamers);
+            var clusters = DENSTREAM.Cluster();
+            Assert.That(clusters, Has.Exactly(1).Items);
+        }
+        
+        [Test]
+        public void Cluster_SameTwoPoints_OneMicroCluster()
+        {
+            // [{"longitude":10.0,"latitude":20.0,"streamDescription":[0.0,1.0,0.0],"id":"Test","timeStamp":0}]
+            var streamers = new[]
+            {
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test"),
+                new Streamer(10.0f, 20.0f, new [] {0.0f, 1.0f, 0.0f}, 0, "Test")
+            };
+            
+            DENSTREAM.Add(streamers);
+            var mcs = DENSTREAM.MicroClusters;
+            Assert.That(mcs, Has.Exactly(1).Items);
+        }
+
+        [Test]
+        public void Cluster_TwoDifferentPoints_NonEmptyClusters()
+        {
+            var streamers = new[]
+            {
+                new Streamer(9.99f, 57.046707f, new[] {1.2f, 1.4f, 1.5f}, 0, "mikkel1"),
+                new Streamer(9.79f, 57.036707f, new[] {1.2f, 1.4f, 1.5f}, 0, "mikkel2")
+            };
+            
+            DENSTREAM.Add(streamers[0]);
             Thread.Sleep(1000);
-            Assert.AreEqual(1, _denStream.MicroClusters.Count);
+            Assert.That(DENSTREAM.MicroClusters, Has.Exactly(1).Items);
+            Assert.That(DENSTREAM.MicroClusters[0].Points, Has.Exactly(1).Items);
+            DENSTREAM.Add(streamers[1]);
+            Thread.Sleep(1000);
+            Assert.That(DENSTREAM.MicroClusters, Has.Exactly(2).Items);
+            Assert.That(DENSTREAM.MicroClusters[0].Points, Has.Exactly(1).Items);
+
+            var clusters = DENSTREAM.Cluster();
+            Assert.That(clusters, Is.Not.Empty);
+            foreach (var cluster in clusters)
+            {
+                Assert.That(cluster, Is.Not.Empty);
+            }
+            
+            var SHRINKAGE = new ShrinkageClustering<Streamer>(100, 100, Similarity.Haversine);
+
+            foreach (var cluster in clusters)
+            {
+                var scCluster = SHRINKAGE.Cluster(cluster);
+                Assert.That(scCluster, Is.Not.Empty);
+            }
+
+        }
+
+        [Test]
+        public void Cluster_TwoClosePoints_OneCluster()
+        {
+            dynamic jsonArr =
+                JsonConvert.DeserializeObject(
+                    File.ReadAllText($"../../../two_close_streamers.json")); 
+            
+            var streamers = new List<Streamer>();
+            foreach (var s in jsonArr)
+            {
+                var id = (string)s.id;
+                var lat = (float)s.latitude;
+                var lon = (float)s.longitude;
+                var timestamp = (int)s.timeStamp;
+                var streamDescription = (s.streamDescription as JArray).ToObject<float[]>();
+                
+                streamers.Add(new Streamer(lon, lat, streamDescription, timestamp, id));
+            }
+            
+            DENSTREAM.Add(streamers);
+            Thread.Sleep(1000);
+            var clusters = DENSTREAM.Cluster();
+            Assert.That(clusters, Has.Exactly(1).Items);
         }
     }
 }
+

@@ -45,6 +45,7 @@ namespace EnvueClustering.TimelessDenStream
         public T[][] Cluster(IEnumerable<T> dataStream)
         {
             var dataArr = dataStream.ToArray();
+
             if (dataArr == null)
                 throw new EnvueArgumentException("Data stream provided to DBSCAN was null.");
             if (dataArr.Length == 0)

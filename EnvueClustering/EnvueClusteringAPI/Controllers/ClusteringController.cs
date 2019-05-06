@@ -34,9 +34,6 @@ namespace EnvueClusteringAPI.Controllers
             _denStream = denStream;
             _shrinkageClustering = new ShrinkageClustering<Streamer>(100, 100, 
                 Similarity.Cosine);
-            
-            
-            
         }
 
         /// <summary>
@@ -162,7 +159,12 @@ namespace EnvueClusteringAPI.Controllers
                 
                 // Cluster on the stream descriptions
                 foreach (var geoCluster in geoClusters)
-                    eventClusters.AddRange(_shrinkageClustering.Cluster(geoCluster));
+                {
+                    if (geoCluster.Length > 10)  // Shrinkage clustering requires a proper data set to function
+                        eventClusters.AddRange(_shrinkageClustering.Cluster(geoCluster));
+                    else 
+                        eventClusters.Add(geoCluster);
+                }
                 
                 return Ok(eventClusters);
                 
@@ -207,7 +209,7 @@ namespace EnvueClusteringAPI.Controllers
         {
             try
             {
-                var msg = _denStream.Statistics();
+                var msg = $"V1: {_denStream.Statistics()}";
                 return Ok(msg);
             }
             catch (Exception e)

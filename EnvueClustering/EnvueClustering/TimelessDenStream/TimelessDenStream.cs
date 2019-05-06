@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using EnvueClustering.ClusteringBase;
 using EnvueClustering.Exceptions;
@@ -151,6 +152,8 @@ namespace EnvueClustering.TimelessDenStream
                 
                 // Merge the dataPoint into the micro cluster map
                 Merge(p);
+
+                Thread.Sleep(100);  // Spare the CPU a bit
             }
         }
 

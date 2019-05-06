@@ -40,8 +40,6 @@ workflows:
     jobs:
       - test
       - integration_test:
-         requires:
-           - test
          filters:
            branches:
              only:
@@ -49,6 +47,7 @@ workflows:
                - master
       - deploy:
          requires:
+           - test
            - integration_test
          filters:
            branches:

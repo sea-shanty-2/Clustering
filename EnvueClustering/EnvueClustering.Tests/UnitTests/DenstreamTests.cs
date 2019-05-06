@@ -25,35 +25,25 @@ namespace EnvueClustering.Tests
             DENSTREAM.Clear();
             DENSTREAM.MaintainClusterMap();
         }
-
+        
         [Test]
-        public void SomeTest()
+        public void Cluster_OnePoint_OneMicroCluster()
         {
-            dynamic jsonArr =
-                JsonConvert.DeserializeObject(
-                    File.ReadAllText($"../../../shrinkage_empty_test.json"));
-
-            var streamers = new List<Streamer>();
-            foreach (var s in jsonArr)
-            {
-                var id = (string)s.id;
-                var lat = (float)s.latitude;
-                var lon = (float)s.longitude;
-                var timestamp = (int)s.timeStamp;
-                var streamDescription = new [] {1.2f, 1.4f, 1.5f};
-                
-                streamers.Add(new Streamer(lon, lat, streamDescription, timestamp, id));
-            }
+            Streamer streamer = new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test");
             
-            foreach (var streamer in streamers)
-            {
-                DENSTREAM.Add(streamer);
-            }
+            DENSTREAM.Add(streamer);
+            var mcs = DENSTREAM.MicroClusters;
+            Assert.That(mcs, Has.Exactly(1).Items);
+        }
+        
+        [Test]
+        public void Cluster_OnePointList_OneMicroCluster()
+        {
+            List<Streamer> streamers = new List<Streamer> {new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test")};
             
-            
-            var clusters = DENSTREAM.Cluster();
-            DENSTREAM.Terminate();
-            Assert.That(clusters, Is.Not.Empty);
+            DENSTREAM.Add(streamers);
+            var mcs = DENSTREAM.MicroClusters;
+            Assert.That(mcs, Has.Exactly(1).Items);
         }
 
         [Test]

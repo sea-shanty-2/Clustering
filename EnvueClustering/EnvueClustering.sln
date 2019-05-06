@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvueClustering.Tests", "En
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvueClusteringAPI", "EnvueClusteringAPI\EnvueClusteringAPI.csproj", "{B20745E1-DCBA-46D7-BF0E-28EFE36F70F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvueClusteringAPI.Tests", "EnvueClusteringAPI.Tests\EnvueClusteringAPI.Tests.csproj", "{A096FEB3-7AC1-4EFF-8B30-F3DB944CC9EC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{B20745E1-DCBA-46D7-BF0E-28EFE36F70F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B20745E1-DCBA-46D7-BF0E-28EFE36F70F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B20745E1-DCBA-46D7-BF0E-28EFE36F70F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A096FEB3-7AC1-4EFF-8B30-F3DB944CC9EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A096FEB3-7AC1-4EFF-8B30-F3DB944CC9EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A096FEB3-7AC1-4EFF-8B30-F3DB944CC9EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A096FEB3-7AC1-4EFF-8B30-F3DB944CC9EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

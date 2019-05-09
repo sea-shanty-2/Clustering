@@ -135,10 +135,12 @@ namespace EnvueClustering.TimelessDenStream
             return _terminate;
         }
 
-        private void MaintainClusterMapAsync()
+        private async void MaintainClusterMapAsync()
         {
             while (_dataStream != null)
             {
+                await Task.Delay(1000); // Spare the CPU a bit
+                
                 if (_userTerminated)
                     return;
                 
@@ -152,8 +154,6 @@ namespace EnvueClustering.TimelessDenStream
                 
                 // Merge the dataPoint into the micro cluster map
                 Merge(p);
-
-                Thread.Sleep(100);  // Spare the CPU a bit
             }
         }
 

@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -85,6 +86,7 @@ namespace EnvueClusteringAPI.Tests
         public async Task ClusteringEvent_AddAndRemoveOnePoint_BadRequest()
         {
             await AddStreamer();
+            Thread.Sleep(2000); // Allow the cluster maintenance algorithm to do its work
             await RemoveStreamer();
 
             HttpResponseMessage response = await _client.GetAsync("clustering/events");

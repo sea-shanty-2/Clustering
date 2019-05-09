@@ -32,6 +32,7 @@ namespace EnvueClustering.Tests
             Streamer streamer = new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test");
             
             DENSTREAM.Add(streamer);
+            Thread.Sleep(2000);
             var mcs = DENSTREAM.MicroClusters;
             Assert.That(mcs, Has.Exactly(1).Items);
         }
@@ -42,6 +43,7 @@ namespace EnvueClustering.Tests
             List<Streamer> streamers = new List<Streamer> {new Streamer(10, 20, new float[] {1, 0, 1}, 0, "Test")};
             
             DENSTREAM.Add(streamers);
+            Thread.Sleep(2000);
             var mcs = DENSTREAM.MicroClusters;
             Assert.That(mcs, Has.Exactly(1).Items);
         }
@@ -57,6 +59,7 @@ namespace EnvueClustering.Tests
             };
             
             DENSTREAM.Add(streamers);
+            Thread.Sleep(3000);
             var clusters = DENSTREAM.Cluster();
             Assert.That(clusters, Has.Exactly(1).Items);
         }
@@ -72,6 +75,7 @@ namespace EnvueClustering.Tests
             };
             
             DENSTREAM.Add(streamers);
+            Thread.Sleep(3000);
             var mcs = DENSTREAM.MicroClusters;
             Assert.That(mcs, Has.Exactly(1).Items);
         }
@@ -86,11 +90,11 @@ namespace EnvueClustering.Tests
             };
             
             DENSTREAM.Add(streamers[0]);
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             Assert.That(DENSTREAM.MicroClusters, Has.Exactly(1).Items);
             Assert.That(DENSTREAM.MicroClusters[0].Points, Has.Exactly(1).Items);
             DENSTREAM.Add(streamers[1]);
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             Assert.That(DENSTREAM.MicroClusters, Has.Exactly(2).Items);
             Assert.That(DENSTREAM.MicroClusters[0].Points, Has.Exactly(1).Items);
 
@@ -131,7 +135,7 @@ namespace EnvueClustering.Tests
             }
             
             DENSTREAM.Add(streamers);
-            Thread.Sleep(1000);
+            Thread.Sleep(1000 * (streamers.Count + 1));
             var clusters = DENSTREAM.Cluster();
             Assert.That(clusters, Has.Exactly(1).Items);
         }

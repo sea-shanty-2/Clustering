@@ -121,6 +121,27 @@ namespace EnvueClusteringAPI.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("data/remove-range")]
+        public ActionResult RemoveDataPoints(Streamer[] streamers)
+        {
+            try
+            {
+                foreach (var streamer in streamers)
+                {
+                    _denStream.Remove(streamer);
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                if (_env.IsDevelopment() || TEST_ENV)
+                    return BadRequest(e.Message);
+                return BadRequest();
+            }
+        }
+
         /// <summary>
         /// Terminates the micro-cluster maintenance procedure.
         /// </summary>

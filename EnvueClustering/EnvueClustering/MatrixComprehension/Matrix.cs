@@ -457,7 +457,7 @@ namespace EnvueClustering
         public static Matrix RandomAssignmentMatrix(int rows, int columns)
         {
             var matrix = new Matrix(rows, columns);
-            var r = new Random();
+            var r = new Random(42);
             for (var i = 0; i < rows; i++)
             {
                 var j = r.Next(columns);

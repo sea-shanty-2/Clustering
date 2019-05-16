@@ -237,6 +237,7 @@ namespace EnvueClustering.TimelessDenStream
             // Try to insert the point into this cluster
             var successfulInsert = TryInsert(p, closestMicroCluster, 
                 (mc) => mc.Radius <= MAX_RADIUS);
+
             
             if (!successfulInsert)
             {
@@ -259,11 +260,16 @@ namespace EnvueClustering.TimelessDenStream
         /// <returns></returns>
         private bool TryInsert(T p, UntimedMicroCluster<T> cluster, Predicate<UntimedMicroCluster<T>> predicate)
         {
+            Console.WriteLine($"Trying to insert {p.Id} into existing MC containing {cluster.Points.Select(s => s.Id).Pretty()}.");
+
             cluster.Points.Add(p);
+
             if (predicate(cluster))
             {
                 return true;
             }
+            
+            Console.WriteLine($"Insertion failed (MC radius became {cluster.Radius}), max is {MAX_RADIUS}. Creating new micro cluster for {p.Id}.");
 
             cluster.Points.Remove(p);
             return false;

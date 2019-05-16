@@ -139,6 +139,48 @@ namespace EnvueClustering.Tests
             var clusters = DENSTREAM.Cluster();
             Assert.That(clusters, Has.Exactly(1).Items);
         }
+
+        [Test]
+        public void Update_SingleStreamer_UpdatedPosition()
+        {
+            var streamer = new Streamer(9.99f, 57.046707f, new[] {1.2f, 1.4f, 1.5f}, 0, "mikkel1");
+            DENSTREAM.Add(streamer);
+            DENSTREAM.Cluster();
+
+            streamer.Longitude = 9.98f;
+            streamer.Latitude = 57.09f;
+            
+            DENSTREAM.Update(streamer);
+            var clusters = DENSTREAM.Cluster();
+            Assert.That(clusters, Has.Exactly(1).Items);
+            var cluster = clusters.First();
+            Assert.That(cluster, Has.Exactly(1).Items);
+            var clusteredStreamer = cluster.First();
+            Assert.That(clusteredStreamer.Longitude, Is.EqualTo(9.98f));
+            Assert.That(clusteredStreamer.Latitude, Is.EqualTo(57.09f));
+        }
+
+        [Test]
+        public void Update_TwoStreamers_JoinedCluster()
+        {
+            var streamers = new[]
+            {
+                new Streamer(9.99f, 57.046707f, new[] {1.2f, 1.4f, 1.5f}, 0, "mikkel1"),
+                new Streamer(9.79f, 57.036707f, new[] {1.2f, 1.4f, 1.5f}, 0, "mikkel2")
+            };
+            
+            DENSTREAM.Add(streamers);
+            DENSTREAM.Cluster();
+            Assert.That(DENSTREAM.MicroClusters, Has.Exactly(2).Items);
+
+            var updatedStreamer = new Streamer(9.99f, 57.046718f, new[] {1.2f, 1.4f, 1.5f}, 0, "mikkel2");
+            DENSTREAM.Update(updatedStreamer);
+            var clusters = DENSTREAM.Cluster();
+            Assert.That(DENSTREAM.MicroClusters, Has.Exactly(1).Items);
+            Assert.That(clusters, Has.Exactly(1).Items);
+            var cluster = clusters.First();
+            Assert.That(cluster.Any(s => s.Id == "mikkel2" && s.Longitude == 9.99f && s.Latitude == 57.046718f));
+        }
     }
 }
 

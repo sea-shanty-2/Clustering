@@ -123,11 +123,11 @@ namespace EnvueClusteringAPI.Controllers
 
         [HttpPost]
         [Route("data/remove-range")]
-        public ActionResult RemoveDataPoints(Streamer[] streamers)
+        public ActionResult RemoveDataPoints(string[] streamerIds)
         {
             try
             {
-                foreach (var streamer in streamers)
+                foreach (var streamer in streamerIds)
                 {
                     _denStream.Remove(streamer);
                 }

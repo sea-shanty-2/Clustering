@@ -98,6 +98,24 @@ namespace EnvueClustering.TimelessDenStream
             }
         }
 
+        public void Remove(string id)
+        {
+            var emptyMicroClusters = new List<UntimedMicroCluster<T>>();
+            foreach (var microCluster in _microClusters)
+            {
+                microCluster.Points.RemoveAll(p => p.Id.Equals(id));
+                if (microCluster.Points.Count == 0)
+                {
+                    emptyMicroClusters.Add(microCluster);
+                }
+            }
+
+            foreach (var emptyMicroCluster in emptyMicroClusters)
+            {
+                _microClusters.Remove(emptyMicroCluster);
+            }
+        }
+
         /// <summary>
         /// Removes the data point from the cluster map and reinserts it in order
         /// to reflect a change in position.

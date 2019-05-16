@@ -234,11 +234,13 @@ namespace EnvueClustering.TimelessDenStream
 
             var closestMicroCluster = _microClusters.First();
             
-            // Try to insert the point into this cluster
-            var successfulInsert = TryInsert(p, closestMicroCluster, 
-                (mc) => mc.Radius <= MAX_RADIUS);
-
+            // Try to insert the point into this cluster if the cluster is close enough
+            // and if the cluster radius is small enough after insertion
+            var successfulInsert = _pointSimilarityFunction(p, closestMicroCluster.Center) < MAX_RADIUS
+                && TryInsert(p, closestMicroCluster, 
+                    (mc) => mc.Radius <= MAX_RADIUS);
             
+
             if (!successfulInsert)
             {
                 // Create a new micro cluster, add to the cluster map

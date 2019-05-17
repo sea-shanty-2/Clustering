@@ -100,14 +100,21 @@ namespace EnvueClustering.TimelessDenStream
 
         public void Remove(string id)
         {
+            var totalRemoved = 0;
             var emptyMicroClusters = new List<UntimedMicroCluster<T>>();
             foreach (var microCluster in _microClusters)
             {
-                microCluster.Points.RemoveAll(p => p.Id.Equals(id));
+                totalRemoved += microCluster.Points.RemoveAll(p => p.Id.Equals(id));
                 if (microCluster.Points.Count == 0)
                 {
                     emptyMicroClusters.Add(microCluster);
                 }
+            }
+
+            if (totalRemoved == 0)
+            {
+                var allIds = _microClusters.Select(mc => mc.Points.Select(p => p.Id)).Flatten();
+                throw new KeyNotFoundException($"Failed to remove id {id} from cluster map. Currently held ids are {allIds.Pretty()}");
             }
 
             foreach (var emptyMicroCluster in emptyMicroClusters)

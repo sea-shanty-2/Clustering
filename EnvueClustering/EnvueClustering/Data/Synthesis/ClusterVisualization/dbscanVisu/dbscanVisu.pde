@@ -6,7 +6,7 @@ void setup() {
   size(600, 600);
   background(255);
   readGreyPoints("data.synthetic.json", greyPoints);
-  readClusterPoints("sc.json", points);
+  readClusterPoints("dbscan.json", points);
   noStroke();
   for (int i = 0; i < greyPoints.size(); i++) {
     greyPoints.get(i).show();

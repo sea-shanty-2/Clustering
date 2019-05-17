@@ -1,5 +1,6 @@
 
 ArrayList<Point> points = new ArrayList<Point>();
+ArrayList<Point> mcPoints = new ArrayList<Point>();
 ArrayList<Point> pcmcs = new ArrayList<Point>();
 ArrayList<Point> ocmcs = new ArrayList<Point>();
 ArrayList<Point> pcmcPoints = new ArrayList<Point>();
@@ -10,16 +11,24 @@ void setup() {
   background(255);
 
   readRawPoints("data.synthetic.json", points);
+  readRawPoints("mcPoints.json", mcPoints);
   readMicroClusters("mcs.json", ocmcs);
 
-  // Display raw points
-  for (int i = 0; i < points.size(); i++) {
-    points.get(i).show();
-  }
+  //// Display raw points
+  //for (int i = 0; i < points.size(); i++) {
+  //  points.get(i).show();
+  //}
   
+  // Draw mc points
+  stroke(0);
+  fill(0);
+  for (int i = 0; i < mcPoints.size(); i++) {
+    mcPoints.get(i).show();
+  }
+
   // Draw MCs as green circles
-  noFill();
-  stroke(0, 150, 0);
+  stroke(0, 100, 0);
+  fill(0, 150, 0, 50.0);
   for (int i = 0; i < ocmcs.size(); i++) {
     ocmcs.get(i).show();
   }

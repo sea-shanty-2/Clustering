@@ -16,7 +16,35 @@ namespace EnvueClustering
     {
         static void Main(string[] args)
         {
-            TimelessDenStreamMCTest();
+            //TimelessDenStreamMCTest();
+            TimelessDenStreamClusterTest();
+            //DbScanTest();
+            //ShrinkageClusteringTest();
+        }
+
+        private static void TimelessDenStreamClusterTest()
+        {
+            var filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+            var denStream = new TimelessDenStream<EuclideanPoint>(
+                Similarity.EuclideanDistance, 
+                Similarity.EuclideanDistance);
+
+            foreach (var p in dataStream)
+            {
+                denStream.Add(p);
+            }
+
+            denStream.Cluster();
+
+            var mcs = denStream.MicroClusters;
+            Console.WriteLine($"Num data points: {dataStream.Count()}");
+            Console.WriteLine($"Num microclsuters: {mcs.Count()}");
+            var mcPoints = new List<EuclideanPoint>();
+            mcs.ForEach(mc => mcPoints.AddRange(mc.Points));
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/mcs.json", JsonConvert.SerializeObject(mcs));
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/mcPoints.json", JsonConvert.SerializeObject(mcPoints));
+
         }
 
         private static void TimelessDenStreamMCTest()
@@ -27,22 +55,26 @@ namespace EnvueClustering
                 Similarity.EuclideanDistance, 
                 Similarity.EuclideanDistance);
 
-            var terminate = denStream.MaintainClusterMap();
-
             foreach (var p in dataStream)
             {
                 denStream.Add(p);
             }
-            
-            Thread.Sleep(2000);
 
-            foreach (var p in dataStream.TakeLast(110))
-            {
-                denStream.Remove(p);
-            }
+            denStream.Cluster();
+            
+//            foreach (var p in dataStream.TakeLast(110))
+//            {
+//                denStream.Remove(p);
+//            }
+//
+//            denStream.Cluster();
 
             var mcs = denStream.MicroClusters;
+            var mcPoints = new List<EuclideanPoint>();
+            mcs.ForEach(mc => mcPoints.AddRange(mc.Points));
             File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/mcs.json", JsonConvert.SerializeObject(mcs));
+            File.WriteAllText($"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/mcPoints.json", JsonConvert.SerializeObject(mcPoints));
+
         }
 
         private static void TimelessDenStreamTest()
@@ -95,6 +127,37 @@ namespace EnvueClustering
             
             File.WriteAllText(
                 $"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/dbscanVisu/sc.json", 
+                JsonConvert.SerializeObject(scClustersAll));
+        }
+
+        private static void DbScanTest()
+        {
+            
+            var filePath = $"{Environment.CurrentDirectory}/Data/Synthesis/DataSteamGenerator/data.synthetic.json";
+            var dataStream = ContinuousDataReader.ReadSyntheticEuclidean(filePath);
+            var denStream = new TimelessDenStream<EuclideanPoint>(
+                Similarity.EuclideanDistance, 
+                Similarity.EuclideanDistance);
+
+            foreach (var p in dataStream)
+            {
+                denStream.Add(p);
+            }
+
+
+
+            var scClustersAll = new List<dynamic>();
+            var clusters = denStream.Cluster();
+            var numClusters = 0;
+            foreach (var cluster in clusters)
+            {
+                var k = numClusters;
+                scClustersAll.AddRange(cluster.Select(p => new { x = p.X, y = p.Y, c = k}));
+                numClusters++;
+            }
+            
+            File.WriteAllText(
+                $"{Environment.CurrentDirectory}/Data/Synthesis/ClusterVisualization/dbscanVisu/dbscan.json", 
                 JsonConvert.SerializeObject(scClustersAll));
         }
 

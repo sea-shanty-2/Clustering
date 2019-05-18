@@ -82,14 +82,24 @@ namespace EnvueClustering.TimelessDenStream
         /// <param name="dataPoint"></param>
         public void Remove(T dataPoint)
         {
+            var allIds = _microClusters.Select(mc => mc.Points.Select(p => p.Id)).Flatten();
+            Console.WriteLine($"Trying to remove {dataPoint.Id} from cluster map.");
+            Console.WriteLine($"Currently held ids are {allIds.Pretty()}");
+
+            var totalRemoved = 0;
             var emptyMicroClusters = new List<UntimedMicroCluster<T>>();
             foreach (var microCluster in _microClusters)
             {
-                microCluster.Points.RemoveAll(p => p.Id.Equals(dataPoint.Id));
+                totalRemoved += microCluster.Points.RemoveAll(p => p.Id.Equals(dataPoint.Id));
                 if (microCluster.Points.Count == 0)
                 {
                     emptyMicroClusters.Add(microCluster);
                 }
+            }
+            
+            if (totalRemoved == 0)
+            {
+                throw new KeyNotFoundException($"Failed to remove id {dataPoint.Id} from cluster map. Currently held ids are {allIds.Pretty()}");
             }
 
             foreach (var emptyMicroCluster in emptyMicroClusters)
@@ -104,7 +114,6 @@ namespace EnvueClustering.TimelessDenStream
             Console.WriteLine($"Trying to remove {id} from cluster map.");
             Console.WriteLine($"Currently held ids are {allIds.Pretty()}");
 
-            Console.WriteLine($"");
             var totalRemoved = 0;
             var emptyMicroClusters = new List<UntimedMicroCluster<T>>();
             foreach (var microCluster in _microClusters)
